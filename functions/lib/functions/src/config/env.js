@@ -33,34 +33,23 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.enrichReportContext = void 0;
-const functions = __importStar(require("firebase-functions"));
-// import { MockWeatherProvider } from './providers/weather';
-// const weatherProvider = new MockWeatherProvider();
-exports.enrichReportContext = functions.firestore
-    .document('reports/{reportId}')
-    .onCreate(async (snap, context) => {
-    const data = snap.data();
-    if (data.contextStatus !== 'pending') {
-        return;
+exports.requireEnv = requireEnv;
+exports.getConfig = getConfig;
+const dotenv = __importStar(require("dotenv"));
+const path_1 = require("path");
+// Load .env.local if it exists (for local development via Firebase emulator)
+dotenv.config({ path: (0, path_1.resolve)(__dirname, '../../.env.local') });
+function requireEnv(key) {
+    const value = process.env[key];
+    if (!value) {
+        throw new Error(`Missing required environment variable: ${key}`);
     }
-    try {
-        const location = data.location;
-        if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
-            throw new Error('Invalid location data');
-        }
-        // const weatherContext = await weatherProvider.getContext(location.lat, location.lng);
-        await snap.ref.update({
-            // context: weatherContext,
-            contextStatus: 'processed'
-        });
-    }
-    catch (error) {
-        console.error('Error enriching report context:', error);
-        // Fail gracefully
-        await snap.ref.update({
-            contextStatus: 'failed'
-        });
-    }
-});
-//# sourceMappingURL=enrichment.js.map
+    return value;
+}
+function getConfig() {
+    return {
+        geminiApiKey: requireEnv('GEMINI_API_KEY'),
+        openWeatherApiKey: requireEnv('OPENWEATHER_API_KEY'),
+    };
+}
+//# sourceMappingURL=env.js.map

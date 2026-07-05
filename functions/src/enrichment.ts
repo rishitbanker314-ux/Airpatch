@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
-import { MockWeatherProvider } from './providers/weather';
+// import { MockWeatherProvider } from './providers/weather';
 
-const weatherProvider = new MockWeatherProvider();
+// const weatherProvider = new MockWeatherProvider();
 
 export const enrichReportContext = functions.firestore
   .document('reports/{reportId}')
@@ -18,10 +18,10 @@ export const enrichReportContext = functions.firestore
         throw new Error('Invalid location data');
       }
 
-      const weatherContext = await weatherProvider.getContext(location.lat, location.lng);
-
+      // const weatherContext = await weatherProvider.getContext(location.lat, location.lng);
+      
       await snap.ref.update({
-        context: weatherContext,
+        // context: weatherContext,
         contextStatus: 'processed'
       });
 

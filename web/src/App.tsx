@@ -5,6 +5,7 @@ import { ReportForm } from './pages/ReportForm';
 import { ReportDetail } from './pages/ReportDetail';
 import { HotspotDetail } from './pages/HotspotDetail';
 import { Dashboard } from './pages/Dashboard';
+import { SmokeTest } from './pages/SmokeTest';
 
 function App() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
@@ -17,6 +18,7 @@ function App() {
           <Link to="/" className="text-blue-500 hover:underline">HomeMap</Link>
           <Link to="/report" className="text-blue-500 hover:underline">ReportForm</Link>
           <Link to="/dashboard" className="text-blue-500 hover:underline">Dashboard</Link>
+          <Link to="/smoke-test" className="text-red-500 hover:underline ml-auto">Dev: Smoke Test</Link>
         </nav>
 
         <Routes>
@@ -25,6 +27,7 @@ function App() {
           <Route path="/report/:id" element={<ReportDetail />} />
           <Route path="/hotspot/:id" element={<HotspotDetail />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/smoke-test" element={<SmokeTest />} />
         </Routes>
       </BrowserRouter>
     </APIProvider>

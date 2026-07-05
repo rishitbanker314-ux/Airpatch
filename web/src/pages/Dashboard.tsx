@@ -43,8 +43,8 @@ export function Dashboard() {
   // --- Derived Statistics ---
   
   const highRiskHotspots = hotspots.filter(
-    h => h.riskSummary?.riskBand === 'high' || h.riskSummary?.riskBand === 'critical'
-  ).sort((a, b) => (b.riskSummary?.riskScore || 0) - (a.riskSummary?.riskScore || 0));
+    h => h.risk?.riskBand === 'high' || h.risk?.riskBand === 'critical'
+  ).sort((a, b) => (b.risk?.riskScore || 0) - (a.risk?.riskScore || 0));
 
   const topActiveHotspots = [...hotspots]
     .sort((a, b) => b.activeReportCount - a.activeReportCount)
@@ -96,7 +96,7 @@ export function Dashboard() {
               </div>
               <div className="text-xs text-gray-500 flex items-center mt-1">
                 <MapPin className="w-3 h-3 mr-1" />
-                {h.centerCoordinates.latitude.toFixed(3)}, {h.centerCoordinates.longitude.toFixed(3)}
+                {h.center.lat.toFixed(3)}, {h.center.lng.toFixed(3)}
               </div>
             </div>
             
@@ -106,11 +106,11 @@ export function Dashboard() {
                   {h.activeReportCount} Active
                 </div>
               )}
-              {highlightField === 'risk' && h.riskSummary && (
+              {highlightField === 'risk' && h.risk && (
                 <div className={`px-2 py-1 rounded-lg text-xs font-bold uppercase tracking-wide
-                  ${h.riskSummary.riskBand === 'critical' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}
+                  ${h.risk.riskBand === 'critical' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'}
                 `}>
-                  {h.riskSummary.riskBand} ({h.riskSummary.riskScore})
+                  {h.risk.riskBand} ({h.risk.riskScore})
                 </div>
               )}
               {highlightField === 'time' && (

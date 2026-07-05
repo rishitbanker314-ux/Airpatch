@@ -58,17 +58,23 @@ export function ReportDetail() {
           Back to map
         </Link>
         
-        <ResolutionPanel 
-          targetId={report.id} 
-          targetType="report" 
-          isResolved={report.status === 'resolved'} 
-          onResolved={fetchReport} 
-        />
+        {report.hotspotId ? (
+          <ResolutionPanel 
+            hotspotId={report.hotspotId} 
+            reportId={report.id} 
+            isResolved={report.status === 'resolved'} 
+            onResolved={fetchReport} 
+          />
+        ) : (
+          <div className="bg-white rounded-xl shadow-md p-6 mb-6">
+            <p className="text-gray-500 text-sm">This report has not been grouped into a hotspot yet, so it cannot be resolved directly.</p>
+          </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="h-64 bg-gray-200 relative">
             <img 
-              src={report.imageMetadata.url} 
+              src={report.imageUrl} 
               alt="Pollution report" 
               className="w-full h-full object-cover"
             />
@@ -86,7 +92,7 @@ export function ReportDetail() {
                 {report.category.replace(/_/g, ' ')}
               </h1>
               <p className="text-sm text-gray-500 mt-1">
-                Reported on {report.imageMetadata.uploadedAt?.toLocaleDateString() || 'Unknown date'}
+                Reported on {report.createdAt?.toLocaleDateString() || 'Unknown date'}
               </p>
             </div>
 
@@ -94,7 +100,7 @@ export function ReportDetail() {
               <div>
                 <p className="text-sm font-medium text-gray-500">Location</p>
                 <p className="text-sm text-gray-900 mt-1">
-                  {report.location.latitude.toFixed(4)}, {report.location.longitude.toFixed(4)}
+                  {report.location.lat.toFixed(4)}, {report.location.lng.toFixed(4)}
                 </p>
               </div>
               <div>

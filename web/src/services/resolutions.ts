@@ -13,42 +13,38 @@ export const uploadResolutionImage = async (imageFile: File) => {
   await uploadBytes(storageRef, imageFile);
   const downloadUrl = await getDownloadURL(storageRef);
 
-  return {
-    url: downloadUrl,
-    storagePath,
-    uploadedAt: new Date(),
-  };
+  return downloadUrl;
 };
 
 export const submitResolution = async (
-  targetId: string, 
-  targetType: 'report' | 'hotspot', 
-  resolutionNote?: string, 
+  hotspotId: string, 
+  reportId?: string, 
+  note?: string, 
   imageFile?: File
 ) => {
-  let imageMetadata;
+  let evidenceImageUrl;
   if (imageFile) {
-    imageMetadata = await uploadResolutionImage(imageFile);
+    evidenceImageUrl = await uploadResolutionImage(imageFile);
   }
 
   const submitFunction = httpsCallable(functions, 'submitResolution');
   const payload: Partial<Resolution> = {
-    targetId,
-    targetType,
-    resolutionNote,
-    imageMetadata,
+    hotspotId,
+    reportId,
+    note,
+    evidenceImageUrl,
   };
 
   const result = await submitFunction(payload);
   return result.data;
 };
 
-export const getResolutionsForTarget = async (targetId: string): Promise<Resolution[]> => {
+export const getResolutionsForHotspot = async (hotspotId: string): Promise<Resolution[]> => {
   const resolutionsRef = collection(db, 'resolutions');
   const q = query(
     resolutionsRef, 
-    where('targetId', '==', targetId),
-    orderBy('resolvedAt', 'desc')
+    where('hotspotId', '==', hotspotId),
+    orderBy('createdAt', 'desc')
   );
 
   const snapshot = await getDocs(q);
@@ -58,11 +54,7 @@ export const getResolutionsForTarget = async (targetId: string): Promise<Resolut
     return {
       id: doc.id,
       ...data,
-      resolvedAt: parseDate(data.resolvedAt),
-      imageMetadata: data.imageMetadata ? {
-        ...data.imageMetadata,
-        uploadedAt: parseDate(data.imageMetadata.uploadedAt),
-      } : undefined,
+      createdAt: parseDate(data.createdAt),
     } as Resolution;
   });
 };

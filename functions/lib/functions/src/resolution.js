@@ -38,64 +38,60 @@ const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const hotspots_1 = require("./hotspots");
 exports.submitResolution = functions.https.onCall(async (data, context) => {
-    const { targetId, targetType, resolutionNote, imageMetadata, resolvedBy } = data;
-    if (!targetId || !targetType) {
-        throw new functions.https.HttpsError('invalid-argument', 'targetId and targetType are required');
+    const { hotspotId, reportId, note, evidenceImageUrl, resolvedBy } = data;
+    if (!hotspotId) {
+        throw new functions.https.HttpsError('invalid-argument', 'hotspotId is required');
     }
     const db = admin.firestore();
     const now = admin.firestore.FieldValue.serverTimestamp();
     // The caller might provide `resolvedBy` or we default it for MVP
     const finalResolvedBy = resolvedBy || 'authority_demo';
-    if (targetType === 'report') {
-        const reportRef = db.collection('reports').doc(targetId);
+    if (reportId) {
+        const reportRef = db.collection('reports').doc(reportId);
         const reportDoc = await reportRef.get();
         if (!reportDoc.exists) {
             throw new functions.https.HttpsError('not-found', 'Report not found');
         }
         await reportRef.update({
-            status: 'resolved'
+            status: 'resolved',
+            updatedAt: now,
         });
-        const reportData = reportDoc.data();
-        if (reportData.hotspotId) {
-            await (0, hotspots_1.recomputeHotspotStats)(reportData.hotspotId);
-        }
+        await (0, hotspots_1.recomputeHotspotStats)(hotspotId);
     }
-    else if (targetType === 'hotspot') {
-        const hotspotRef = db.collection('hotspots').doc(targetId);
+    else {
+        const hotspotRef = db.collection('hotspots').doc(hotspotId);
         const hotspotDoc = await hotspotRef.get();
         if (!hotspotDoc.exists) {
             throw new functions.https.HttpsError('not-found', 'Hotspot not found');
         }
         // Resolve all active reports in this hotspot
         const reportsSnapshot = await db.collection('reports')
-            .where('hotspotId', '==', targetId)
+            .where('hotspotId', '==', hotspotId)
             .where('status', 'in', ['pending', 'verified'])
             .get();
         if (!reportsSnapshot.empty) {
             const batch = db.batch();
             reportsSnapshot.forEach(doc => {
-                batch.update(doc.ref, { status: 'resolved' });
+                batch.update(doc.ref, { status: 'resolved', updatedAt: now });
             });
             await batch.commit();
         }
         // Now recompute stats which will naturally resolve the hotspot
-        await (0, hotspots_1.recomputeHotspotStats)(targetId);
-    }
-    else {
-        throw new functions.https.HttpsError('invalid-argument', 'targetType must be report or hotspot');
+        await (0, hotspots_1.recomputeHotspotStats)(hotspotId);
     }
     // Create resolution record
     const resolutionRef = db.collection('resolutions').doc();
     const resolutionData = {
-        targetId,
-        targetType,
+        hotspotId,
         resolvedBy: finalResolvedBy,
-        resolvedAt: now,
+        createdAt: now,
     };
-    if (resolutionNote)
-        resolutionData.resolutionNote = resolutionNote;
-    if (imageMetadata)
-        resolutionData.imageMetadata = imageMetadata;
+    if (reportId)
+        resolutionData.reportId = reportId;
+    if (note)
+        resolutionData.note = note;
+    if (evidenceImageUrl)
+        resolutionData.evidenceImageUrl = evidenceImageUrl;
     await resolutionRef.set(resolutionData);
     return { success: true, resolutionId: resolutionRef.id };
 });

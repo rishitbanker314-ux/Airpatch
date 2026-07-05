@@ -45,8 +45,7 @@ export function HotspotDetail() {
       </Link>
 
       <ResolutionPanel 
-        targetId={hotspot.id} 
-        targetType="hotspot" 
+        hotspotId={hotspot.id} 
         isResolved={hotspot.status === 'resolved'} 
         onResolved={fetchDetails} 
       />
@@ -61,7 +60,7 @@ export function HotspotDetail() {
             <h1 className="text-2xl font-bold dark:text-white mb-2">Pollution Hotspot</h1>
             <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
               <MapPin className="w-4 h-4 mr-1" />
-              {hotspot.centerCoordinates.latitude.toFixed(4)}, {hotspot.centerCoordinates.longitude.toFixed(4)}
+              {hotspot.center.lat.toFixed(4)}, {hotspot.center.lng.toFixed(4)}
             </div>
           </div>
           <div className="text-right">
@@ -83,40 +82,38 @@ export function HotspotDetail() {
           </div>
           <div>
             <div className="text-sm text-gray-500 dark:text-gray-400">Avg Severity</div>
-            <div className="text-xl font-bold text-orange-500">{hotspot.averageSeverity}%</div>
+            <div className="text-xl font-bold text-orange-500">{hotspot.avgSeverity}%</div>
           </div>
         </div>
       </div>
 
       {/* Risk Card */}
-      {hotspot.riskSummary && (
-        <div className={`rounded-2xl p-6 mb-6 border ${
-          hotspot.riskSummary.riskBand === 'critical' ? 'bg-red-50 border-red-200 text-red-900 dark:bg-red-900/20 dark:border-red-800 dark:text-red-100' :
-          hotspot.riskSummary.riskBand === 'high' ? 'bg-orange-50 border-orange-200 text-orange-900 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-100' :
-          hotspot.riskSummary.riskBand === 'medium' ? 'bg-yellow-50 border-yellow-200 text-yellow-900 dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-100' :
-          'bg-green-50 border-green-200 text-green-900 dark:bg-green-900/20 dark:border-green-800 dark:text-green-100'
-        }`}>
-          <div className="flex items-start justify-between mb-4">
+      {hotspot.risk && (
+        <div className="bg-white rounded-xl shadow-md p-6 mb-8 border border-red-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+            Risk Assessment
+          </h2>
+          <div className="bg-red-50 text-red-900 p-4 rounded-lg mb-4">
+            {hotspot.risk.summary}
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <h2 className="text-lg font-bold flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5" /> 
-                Risk Assessment
-                <span className="uppercase text-xs tracking-wider font-bold px-2 py-1 rounded-full bg-white/50 dark:bg-black/20 ml-2">
-                  {hotspot.riskSummary.riskBand}
-                </span>
-              </h2>
-              <p className="text-sm mt-1 opacity-80">{hotspot.riskSummary.summary}</p>
+              <p className="text-sm text-gray-500">Risk Band</p>
+              <p className="font-semibold capitalize text-red-700">{hotspot.risk.riskBand}</p>
             </div>
-            <div className="text-3xl font-bold">
-              {hotspot.riskSummary.riskScore}
-              <span className="text-sm font-normal opacity-70">/100</span>
+            <div>
+              <p className="text-sm text-gray-500">Risk Score</p>
+              <p className="font-semibold text-red-700">{hotspot.risk.riskScore}/100</p>
             </div>
           </div>
+
           <div>
-            <div className="text-sm font-semibold mb-2 opacity-90">Key Drivers:</div>
-            <ul className="list-disc pl-5 text-sm space-y-1 opacity-80">
-              {hotspot.riskSummary.drivers.map((driver, idx) => (
-                <li key={idx}>{driver}</li>
+            <p className="text-sm font-medium text-gray-700 mb-2">Key Drivers</p>
+            <ul className="list-disc pl-5 space-y-1">
+              {hotspot.risk.drivers.map((driver, idx) => (
+                <li key={idx} className="text-sm text-gray-700">{driver}</li>
               ))}
             </ul>
           </div>
@@ -158,8 +155,8 @@ export function HotspotDetail() {
             <Link key={report.id} to={`/report/${report.id}`} className="block">
               <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:border-blue-300 transition-colors flex gap-4">
                 <div className="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden shrink-0">
-                  {report.imageMetadata?.url ? (
-                    <img src={report.imageMetadata.url} alt="Report" className="w-full h-full object-cover" />
+                  {report.imageUrl ? (
+                    <img src={report.imageUrl} alt="Report" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-gray-400">
                       <ImageOff className="w-6 h-6 mb-1 opacity-50" />

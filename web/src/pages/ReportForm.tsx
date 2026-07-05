@@ -69,7 +69,7 @@ export function ReportForm() {
       const reportId = await submitReport({
         category,
         note,
-        location: { latitude: parsedLat, longitude: parsedLng }
+        location: { lat: parsedLat, lng: parsedLng }
       }, image);
       
       navigate(`/report/${reportId}`);

@@ -14,11 +14,11 @@ export const enrichReportContext = functions.firestore
 
     try {
       const location = data.location;
-      if (!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number') {
+      if (!location || typeof location.lat !== 'number' || typeof location.lng !== 'number') {
         throw new Error('Invalid location data');
       }
 
-      const weatherContext = await weatherProvider.getContext(location.latitude, location.longitude);
+      const weatherContext = await weatherProvider.getContext(location.lat, location.lng);
 
       await snap.ref.update({
         context: weatherContext,

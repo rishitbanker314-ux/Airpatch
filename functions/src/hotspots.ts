@@ -36,10 +36,10 @@ export async function assignReportToHotspot(reportId: string, report: Report) {
   hotspotsSnapshot.forEach(doc => {
     const hotspot = doc.data() as Hotspot;
     const dist = calculateDistanceMeters(
-      report.location.latitude,
-      report.location.longitude,
-      hotspot.centerCoordinates.latitude,
-      hotspot.centerCoordinates.longitude
+      report.location.lat,
+      report.location.lng,
+      hotspot.center.lat,
+      hotspot.center.lng
     );
 
     if (dist <= minDistance) {
@@ -63,9 +63,10 @@ export async function assignReportToHotspot(reportId: string, report: Report) {
     // Create bare-bones hotspot and let recomputeHotspotStats populate counts/severity
     await newHotspotRef.set({
       category: report.category,
-      centerCoordinates: report.location,
+      center: report.location,
       status: 'active',
-      createdAt: now,
+      reportIds: [reportId],
+      firstSeenAt: now,
       updatedAt: now,
     });
 
@@ -90,6 +91,7 @@ export async function recomputeHotspotStats(hotspotId: string) {
   let totalSeverity = 0;
   let severityCount = 0;
   let latestDate = new Date(0);
+  const reportIds: string[] = [];
 
   reportsSnapshot.forEach(doc => {
     const r = doc.data() as Report;
@@ -113,9 +115,10 @@ export async function recomputeHotspotStats(hotspotId: string) {
     if (reportDate > latestDate) {
       latestDate = reportDate;
     }
+    reportIds.push(doc.id);
   });
 
-  const averageSeverity = severityCount > 0 ? Math.round(totalSeverity / severityCount) : 0;
+  const avgSeverity = severityCount > 0 ? Math.round(totalSeverity / severityCount) : 0;
   const status = activeCount === 0 ? 'resolved' : 'active';
   const latestReportAtTs = admin.firestore.Timestamp.fromDate(latestDate);
 
@@ -130,9 +133,10 @@ export async function recomputeHotspotStats(hotspotId: string) {
   
   // Create a merged version of the hotspot with new stats for the risk engine
   const updatedHotspotProps: Partial<Hotspot> = {
+    reportIds,
     activeReportCount: activeCount,
     totalReportCount: totalCount,
-    averageSeverity,
+    avgSeverity,
     status,
     latestReportAt: latestDate, // Pass Date object to risk engine
   };
@@ -142,14 +146,15 @@ export async function recomputeHotspotStats(hotspotId: string) {
   // Calculate risk summary
   // We need to pass the raw reports (with Context properly structured)
   const rawReports = reportsSnapshot.docs.map(d => d.data() as Report);
-  const riskSummary = calculateHotspotRisk(mergedHotspot, rawReports);
+  const risk = calculateHotspotRisk(mergedHotspot, rawReports);
 
   await hotspotRef.update({
+    reportIds,
     activeReportCount: activeCount,
     totalReportCount: totalCount,
-    averageSeverity,
+    avgSeverity,
     status,
-    riskSummary,
+    risk,
     latestReportAt: latestReportAtTs,
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
   });

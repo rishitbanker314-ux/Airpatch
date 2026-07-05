@@ -8,7 +8,7 @@ export const getHotspots = async (): Promise<Hotspot[]> => {
   const response = await getHotspotsFn();
   return response.data.map((h: any) => ({
     ...h,
-    createdAt: parseDate(h.createdAt),
+    firstSeenAt: parseDate(h.firstSeenAt),
     updatedAt: parseDate(h.updatedAt),
     latestReportAt: parseDate(h.latestReportAt)
   })) as Hotspot[];
@@ -20,7 +20,7 @@ export const getHotspotDetails = async (id: string): Promise<{ hotspot: Hotspot,
   
   const hotspot = {
     ...response.data.hotspot,
-    createdAt: parseDate(response.data.hotspot.createdAt),
+    firstSeenAt: parseDate(response.data.hotspot.firstSeenAt),
     updatedAt: parseDate(response.data.hotspot.updatedAt),
     latestReportAt: parseDate(response.data.hotspot.latestReportAt)
   } as Hotspot;
@@ -28,10 +28,7 @@ export const getHotspotDetails = async (id: string): Promise<{ hotspot: Hotspot,
   const reports = response.data.reports.map((r: any) => ({
     ...r,
     createdAt: parseDate(r.createdAt),
-    imageMetadata: r.imageMetadata ? {
-      ...r.imageMetadata,
-      uploadedAt: parseDate(r.imageMetadata.uploadedAt)
-    } : undefined
+    updatedAt: parseDate(r.updatedAt),
   })) as Report[];
 
   return { hotspot, reports };

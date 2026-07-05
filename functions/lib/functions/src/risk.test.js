@@ -2,40 +2,43 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const risk_1 = require("./risk");
 describe('Hotspot Risk Engine', () => {
-    const dummyLoc = { latitude: 0, longitude: 0 };
+    const dummyLoc = { lat: 0, lng: 0 };
     const baseDate = new Date();
     const baseHotspot = {
         id: 'test-hotspot',
         category: 'waste_burning_smoke',
-        centerCoordinates: dummyLoc,
+        center: dummyLoc,
+        reportIds: [],
         activeReportCount: 1,
         totalReportCount: 1,
-        averageSeverity: 0,
+        avgSeverity: 0,
         status: 'active',
         latestReportAt: baseDate,
-        createdAt: baseDate,
+        firstSeenAt: baseDate,
         updatedAt: baseDate,
     };
     const baseReport = {
         id: 'test-report',
-        userId: 'u1',
+        createdBy: 'u1',
         category: 'waste_burning_smoke',
-        imageMetadata: { url: '', storagePath: '', uploadedAt: baseDate },
+        imageUrl: '',
+        imagePath: '',
         location: dummyLoc,
         status: 'pending',
         aiStatus: 'processed',
         contextStatus: 'processed',
         createdAt: baseDate,
+        updatedAt: baseDate,
     };
     it('assigns low risk to a new hotspot with 1 report, low severity, and no context', () => {
-        const risk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 1, averageSeverity: 20 }), [baseReport]);
+        const risk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 1, avgSeverity: 20 }), [baseReport]);
         // Score = volume(5) + severity(8) = 13
         expect(risk.riskScore).toBe(13);
         expect(risk.riskBand).toBe('low');
         expect(risk.drivers).toContain('No significant risk drivers identified');
     });
     it('assigns medium risk with high report volume', () => {
-        const risk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 10, averageSeverity: 30 }), [baseReport]);
+        const risk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 10, avgSeverity: 30 }), [baseReport]);
         // Score = volume(30, capped) + severity(12) = 42
         expect(risk.riskScore).toBe(42);
         expect(risk.riskBand).toBe('medium');
@@ -49,7 +52,7 @@ describe('Hotspot Risk Engine', () => {
                 windSpeed: 10,
                 windDirection: 'N',
             } });
-        (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 4, averageSeverity: 80 }), [reportWithContext]);
+        (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 4, avgSeverity: 80 }), [reportWithContext]);
         // Score = volume(20) + severity(32) + context(10) = 62 -> Wait, that's medium!
         // Wait, let's trace:
         // Volume: 4 * 5 = 20
@@ -57,7 +60,7 @@ describe('Hotspot Risk Engine', () => {
         // Context: AQI>100 -> 10
         // Total: 62. The band 'high' is >= 70.
         // Let's adjust to hit 'high'
-        const highRisk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 6, averageSeverity: 90 }), // Volume: 30, Severity: 36
+        const highRisk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 6, avgSeverity: 90 }), // Volume: 30, Severity: 36
         [reportWithContext] // Context: 10 => Total 76
         );
         expect(highRisk.riskScore).toBe(76);
@@ -75,7 +78,7 @@ describe('Hotspot Risk Engine', () => {
                 windSpeed: 15,
                 windDirection: 'E',
             } });
-        const risk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 15, averageSeverity: 95, createdAt: oldDate }), [reportWithHazardousContext]);
+        const risk = (0, risk_1.calculateHotspotRisk)(Object.assign(Object.assign({}, baseHotspot), { activeReportCount: 15, avgSeverity: 95, firstSeenAt: oldDate }), [reportWithHazardousContext]);
         // Score: Volume(30) + Severity(38) + Context(20) + Duration(10) = 98
         expect(risk.riskScore).toBe(98);
         expect(risk.riskBand).toBe('critical');

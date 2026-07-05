@@ -14,6 +14,16 @@ export interface WeatherProvider {
 
 export class MockWeatherProvider implements WeatherProvider {
   async getContext(lat: number, lng: number): Promise<WeatherContext> {
+    // In production, you would use these keys to fetch real data
+    const aqiKey = process.env.AQI_API_KEY;
+    const weatherKey = process.env.WEATHER_API_KEY;
+
+    if (aqiKey && weatherKey) {
+      console.log(`[WeatherProvider] Using AQI_API_KEY and WEATHER_API_KEY for lat:${lat}, lng:${lng}`);
+    } else {
+      console.log(`[WeatherProvider] Missing API keys. Falling back to mock data.`);
+    }
+
     // Simulate network latency
     await new Promise((resolve) => setTimeout(resolve, 800));
 

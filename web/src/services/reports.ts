@@ -20,18 +20,16 @@ export const submitReport = async (data: Partial<Report>, imageFile: File): Prom
   // Use any to bypass Date vs FieldValue typing issues during write
   const reportDoc: any = {
     id: reportId,
-    userId: 'anonymous', // Dummy UID for MVP
+    createdBy: 'anonymous', // Dummy UID for MVP
     category: data.category,
     location: data.location,
-    imageMetadata: {
-      url: downloadUrl,
-      storagePath: storagePath,
-      uploadedAt: serverTimestamp(),
-    },
+    imageUrl: downloadUrl,
+    imagePath: storagePath,
     status: 'pending',
     aiStatus: 'pending',
     contextStatus: 'pending',
     createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
   };
 
   // Only attach note if it contains text
@@ -52,10 +50,7 @@ export const getReport = async (id: string): Promise<Report | null> => {
     return {
       ...data,
       createdAt: parseDate(data.createdAt),
-      imageMetadata: {
-        ...data.imageMetadata,
-        uploadedAt: parseDate(data.imageMetadata?.uploadedAt),
-      }
+      updatedAt: parseDate(data.updatedAt),
     } as Report;
   }
   return null;

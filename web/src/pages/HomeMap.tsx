@@ -23,8 +23,8 @@ export function HomeMap() {
         
         // Auto-center map on the active hotspots if available
         if (data.length > 0) {
-          const sumLat = data.reduce((sum, h) => sum + h.centerCoordinates.latitude, 0);
-          const sumLng = data.reduce((sum, h) => sum + h.centerCoordinates.longitude, 0);
+          const sumLat = data.reduce((sum, h) => sum + h.center.lat, 0);
+          const sumLng = data.reduce((sum, h) => sum + h.center.lng, 0);
           setMapCenter({
             lat: sumLat / data.length,
             lng: sumLng / data.length
@@ -106,7 +106,7 @@ export function HomeMap() {
           {!loading && filteredHotspots.map((hotspot) => (
             <AdvancedMarker
               key={hotspot.id}
-              position={{ lat: hotspot.centerCoordinates.latitude, lng: hotspot.centerCoordinates.longitude }}
+              position={{ lat: hotspot.center.lat, lng: hotspot.center.lng }}
               onClick={() => navigate(`/hotspot/${hotspot.id}`)}
               title={`Hotspot: ${hotspot.category}`}
             >

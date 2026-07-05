@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
-import { getResolutionsForTarget, submitResolution } from '../services/resolutions';
+import { getResolutionsForHotspot, submitResolution } from '../services/resolutions';
 import type { Resolution } from '../shared/types';
 import { CheckCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { auth } from '../services/firebase';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 
 interface ResolutionPanelProps {
-  targetId: string;
-  targetType: 'report' | 'hotspot';
+  hotspotId: string;
+  reportId?: string;
   isResolved: boolean;
   onResolved?: () => void;
 }
 
-export function ResolutionPanel({ targetId, targetType, isResolved, onResolved }: ResolutionPanelProps) {
+export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }: ResolutionPanelProps) {
+  const [user, setUser] = useState<User | null>(null);
   const [resolutions, setResolutions] = useState<Resolution[]>([]);
   const [loading, setLoading] = useState(isResolved); // Only block loading if it is supposed to be resolved
   const [error, setError] = useState<string | null>(null);
@@ -21,15 +24,22 @@ export function ResolutionPanel({ targetId, targetType, isResolved, onResolved }
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
     if (isResolved) {
       loadResolutions();
     }
-  }, [isResolved, targetId]);
+  }, [isResolved, hotspotId]);
 
   const loadResolutions = async () => {
     setLoading(true);
     try {
-      const data = await getResolutionsForTarget(targetId);
+      const data = await getResolutionsForHotspot(hotspotId);
       setResolutions(data);
     } catch (err) {
       console.error(err);
@@ -44,7 +54,7 @@ export function ResolutionPanel({ targetId, targetType, isResolved, onResolved }
     setIsSubmitting(true);
     setError(null);
     try {
-      await submitResolution(targetId, targetType, note, imageFile || undefined);
+      await submitResolution(hotspotId, reportId, note, imageFile || undefined);
       setShowForm(false);
       setNote('');
       setImageFile(null);
@@ -79,16 +89,16 @@ export function ResolutionPanel({ targetId, targetType, isResolved, onResolved }
               <div className="flex justify-between items-start mb-2">
                 <span className="font-semibold text-green-800 dark:text-green-300">Resolved by Authority</span>
                 <span className="text-xs text-green-600 dark:text-green-400">
-                  {res.resolvedAt.toLocaleDateString()} {res.resolvedAt.toLocaleTimeString()}
+                  {res.createdAt.toLocaleDateString()} {res.createdAt.toLocaleTimeString()}
                 </span>
               </div>
-              {res.resolutionNote && (
-                <p className="text-sm text-green-900 dark:text-green-100 mb-3 whitespace-pre-wrap">{res.resolutionNote}</p>
+              {res.note && (
+                <p className="text-sm text-green-900 dark:text-green-100 mb-3 whitespace-pre-wrap">{res.note}</p>
               )}
-              {res.imageMetadata && (
+              {res.evidenceImageUrl && (
                 <div className="mt-2">
-                  <a href={res.imageMetadata.url} target="_blank" rel="noreferrer" className="inline-block rounded-lg overflow-hidden border border-green-200 dark:border-green-700">
-                    <img src={res.imageMetadata.url} alt="Evidence" className="h-32 object-cover" />
+                  <a href={res.evidenceImageUrl} target="_blank" rel="noreferrer" className="inline-block rounded-lg overflow-hidden border border-green-200 dark:border-green-700">
+                    <img src={res.evidenceImageUrl} alt="Evidence" className="h-32 object-cover" />
                   </a>
                 </div>
               )}
@@ -97,21 +107,21 @@ export function ResolutionPanel({ targetId, targetType, isResolved, onResolved }
         </div>
       )}
 
-      {/* Show Form or Resolve Button if not fully resolved */}
-      {!isResolved && (
+      {/* Show Form or Resolve Button if not fully resolved and User is logged in */}
+      {!isResolved && user && (
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           {!showForm ? (
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="font-bold text-lg dark:text-white">Authority Actions</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Mark this {targetType} as resolved if the incident has been addressed.</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Mark this {reportId ? 'Report' : 'Hotspot'} as resolved if the incident has been addressed.</p>
               </div>
               <button 
                 onClick={() => setShowForm(true)}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
               >
                 <CheckCircle className="w-4 h-4" />
-                Resolve {targetType === 'hotspot' ? 'Hotspot' : 'Report'}
+                Resolve {reportId ? 'Report' : 'Hotspot'}
               </button>
             </div>
           ) : (

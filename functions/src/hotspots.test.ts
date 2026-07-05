@@ -51,7 +51,7 @@ describe('Hotspot Engine Tests', () => {
             id: 'hotspot-1',
             data: () => ({
               category: 'waste_burning_smoke',
-              centerCoordinates: { latitude: 40.7128, longitude: -74.0060 }
+              center: { lat: 40.7128, lng: -74.0060 }
             })
           });
         }
@@ -62,13 +62,13 @@ describe('Hotspot Engine Tests', () => {
           return { 
             where: mockWhere, 
             get: mockGet,
-            doc: () => ({ update: mockUpdate })
+            doc: () => ({ get: () => Promise.resolve({ exists: true, data: () => ({}) }), update: mockUpdate, set: mockUpdate })
           };
         }
         if (name === 'reports') {
           return { 
             doc: () => ({ update: mockUpdate }),
-            where: () => ({ get: () => Promise.resolve({ forEach: () => {} }) })
+            where: () => ({ get: () => Promise.resolve({ forEach: () => {}, docs: [] }) })
           };
         }
         return {};
@@ -76,7 +76,7 @@ describe('Hotspot Engine Tests', () => {
 
       const report: any = {
         category: 'waste_burning_smoke',
-        location: { latitude: 40.7130, longitude: -74.0065 }, // Very close
+        location: { lat: 40.7130, lng: -74.0065 }, // Very close
         createdAt: new Date()
       };
 
@@ -98,16 +98,13 @@ describe('Hotspot Engine Tests', () => {
       const mockUpdate = jest.fn();
       const mockWhere = jest.fn().mockReturnThis();
       const mockGet = jest.fn().mockResolvedValue({
-        forEach: (callback: any) => {
-          callback({
-            data: () => ({ status: 'pending', aiVerification: { severity: 50 }, createdAt: new Date(1000) })
-          });
-          callback({
-            data: () => ({ status: 'verified', aiVerification: { severity: 90 }, createdAt: new Date(2000) })
-          });
-          callback({
-            data: () => ({ status: 'rejected', aiVerification: { severity: 10 }, createdAt: new Date(500) })
-          });
+        docs: [
+          { id: 'report-1', data: () => ({ status: 'pending', aiVerification: { severity: 50 }, createdAt: new Date(1000) }) },
+          { id: 'report-2', data: () => ({ status: 'verified', aiVerification: { severity: 90 }, createdAt: new Date(2000) }) },
+          { id: 'report-3', data: () => ({ status: 'rejected', aiVerification: { severity: 10 }, createdAt: new Date(500) }) }
+        ],
+        forEach: function(this: any, callback: any) {
+          this.docs.forEach(callback);
         }
       });
 
@@ -116,7 +113,7 @@ describe('Hotspot Engine Tests', () => {
           return { where: mockWhere, get: mockGet };
         }
         if (name === 'hotspots') {
-          return { doc: () => ({ update: mockUpdate }) };
+          return { doc: () => ({ get: () => Promise.resolve({ exists: true, data: () => ({}) }), update: mockUpdate }) };
         }
         return {};
       });
@@ -125,7 +122,7 @@ describe('Hotspot Engine Tests', () => {
       expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({
         activeReportCount: 2,
         totalReportCount: 3,
-        averageSeverity: 50, // (50+90+10)/3 = 50
+        avgSeverity: 50, // (50+90+10)/3 = 50
         status: 'active'
       }));
     });

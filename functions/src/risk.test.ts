@@ -2,37 +2,40 @@ import { calculateHotspotRisk } from './risk';
 import type { Hotspot, Report, GeoLocation } from '../../shared/types';
 
 describe('Hotspot Risk Engine', () => {
-  const dummyLoc: GeoLocation = { latitude: 0, longitude: 0 };
+  const dummyLoc: GeoLocation = { lat: 0, lng: 0 };
   const baseDate = new Date();
 
   const baseHotspot: Hotspot = {
     id: 'test-hotspot',
     category: 'waste_burning_smoke',
-    centerCoordinates: dummyLoc,
+    center: dummyLoc,
+    reportIds: [],
     activeReportCount: 1,
     totalReportCount: 1,
-    averageSeverity: 0,
+    avgSeverity: 0,
     status: 'active',
     latestReportAt: baseDate,
-    createdAt: baseDate,
+    firstSeenAt: baseDate,
     updatedAt: baseDate,
   };
 
   const baseReport: Report = {
     id: 'test-report',
-    userId: 'u1',
+    createdBy: 'u1',
     category: 'waste_burning_smoke',
-    imageMetadata: { url: '', storagePath: '', uploadedAt: baseDate },
+    imageUrl: '',
+    imagePath: '',
     location: dummyLoc,
     status: 'pending',
     aiStatus: 'processed',
     contextStatus: 'processed',
     createdAt: baseDate,
+    updatedAt: baseDate,
   };
 
   it('assigns low risk to a new hotspot with 1 report, low severity, and no context', () => {
     const risk = calculateHotspotRisk(
-      { ...baseHotspot, activeReportCount: 1, averageSeverity: 20 },
+      { ...baseHotspot, activeReportCount: 1, avgSeverity: 20 },
       [baseReport]
     );
 
@@ -44,7 +47,7 @@ describe('Hotspot Risk Engine', () => {
 
   it('assigns medium risk with high report volume', () => {
     const risk = calculateHotspotRisk(
-      { ...baseHotspot, activeReportCount: 10, averageSeverity: 30 },
+      { ...baseHotspot, activeReportCount: 10, avgSeverity: 30 },
       [baseReport]
     );
 
@@ -67,7 +70,7 @@ describe('Hotspot Risk Engine', () => {
     };
     
     calculateHotspotRisk(
-      { ...baseHotspot, activeReportCount: 4, averageSeverity: 80 },
+      { ...baseHotspot, activeReportCount: 4, avgSeverity: 80 },
       [reportWithContext]
     );
 
@@ -79,7 +82,7 @@ describe('Hotspot Risk Engine', () => {
     // Total: 62. The band 'high' is >= 70.
     // Let's adjust to hit 'high'
     const highRisk = calculateHotspotRisk(
-      { ...baseHotspot, activeReportCount: 6, averageSeverity: 90 }, // Volume: 30, Severity: 36
+      { ...baseHotspot, activeReportCount: 6, avgSeverity: 90 }, // Volume: 30, Severity: 36
       [reportWithContext] // Context: 10 => Total 76
     );
 
@@ -105,7 +108,7 @@ describe('Hotspot Risk Engine', () => {
     };
     
     const risk = calculateHotspotRisk(
-      { ...baseHotspot, activeReportCount: 15, averageSeverity: 95, createdAt: oldDate },
+      { ...baseHotspot, activeReportCount: 15, avgSeverity: 95, firstSeenAt: oldDate },
       [reportWithHazardousContext]
     );
 

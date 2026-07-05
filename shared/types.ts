@@ -5,8 +5,9 @@ export type HotspotStatus = 'active' | 'resolved';
 export type RiskBand = 'low' | 'medium' | 'high' | 'critical';
 
 export interface GeoLocation {
-  latitude: number;
-  longitude: number;
+  lat: number;
+  lng: number;
+  localityName?: string;
 }
 
 export interface User {
@@ -17,14 +18,11 @@ export interface User {
 
 export interface Report {
   id: string; // Document ID
-  userId: string;
+  createdBy: string;
   category: PollutionCategory;
   note?: string;
-  imageMetadata: {
-    url: string;
-    storagePath: string;
-    uploadedAt: Date;
-  };
+  imageUrl: string;
+  imagePath: string;
   location: GeoLocation;
   status: ReportStatus;
   aiStatus: ProcessingStatus;
@@ -48,6 +46,7 @@ export interface Report {
   };
   hotspotId?: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface RiskAssessment {
@@ -61,27 +60,24 @@ export interface RiskAssessment {
 export interface Hotspot {
   id: string; // Document ID
   category: PollutionCategory;
-  centerCoordinates: GeoLocation;
+  center: GeoLocation;
+  reportIds: string[];
   activeReportCount: number;
   totalReportCount: number;
-  averageSeverity: number;
+  avgSeverity: number;
   status: HotspotStatus;
-  riskSummary?: RiskAssessment;
+  risk?: RiskAssessment;
   latestReportAt: Date;
-  createdAt: Date;
+  firstSeenAt: Date;
   updatedAt: Date;
 }
 
 export interface Resolution {
   id: string;
-  targetId: string;
-  targetType: 'report' | 'hotspot';
+  hotspotId: string;
+  reportId?: string;
   resolvedBy: string; // Authority User ID
-  resolutionNote?: string;
-  imageMetadata?: {
-    url: string;
-    storagePath: string;
-    uploadedAt: Date;
-  };
-  resolvedAt: Date;
+  note?: string;
+  evidenceImageUrl?: string;
+  createdAt: Date;
 }

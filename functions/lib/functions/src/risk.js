@@ -23,9 +23,9 @@ function calculateHotspotRisk(hotspot, reports) {
     }
     // 2. AI Severity (Up to 40 pts)
     // Maps 0-100 severity to 0-40 points
-    const severityScore = Math.round((hotspot.averageSeverity / 100) * 40);
+    const severityScore = Math.round((hotspot.avgSeverity / 100) * 40);
     score += severityScore;
-    if (hotspot.averageSeverity >= 70) {
+    if (hotspot.avgSeverity >= 70) {
         drivers.push('High average visual severity assessed by AI');
     }
     // 3. Environmental Context (Up to 20 pts)
@@ -46,8 +46,8 @@ function calculateHotspotRisk(hotspot, reports) {
     // 4. Duration / Staleness (Up to 10 pts)
     // If the hotspot has been open for > 24 hours, add 10 points
     let durationScore = 0;
-    if (hotspot.createdAt) {
-        const hoursOpen = (Date.now() - hotspot.createdAt.getTime()) / (1000 * 60 * 60);
+    if (hotspot.firstSeenAt) {
+        const hoursOpen = (Date.now() - hotspot.firstSeenAt.getTime()) / (1000 * 60 * 60);
         if (hoursOpen > 24) {
             durationScore = 10;
             drivers.push('Unresolved for over 24 hours');

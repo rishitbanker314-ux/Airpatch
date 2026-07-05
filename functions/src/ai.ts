@@ -17,7 +17,7 @@ export const analyzeReportImage = functions.firestore
         throw new Error('GEMINI_API_KEY is not set');
       }
 
-      const storagePath = data.imageMetadata?.storagePath;
+      const storagePath = data.imagePath;
       if (!storagePath) {
         throw new Error('No storage path found in report');
       }

@@ -41,7 +41,6 @@ const getGenAI = () => new genai_1.GoogleGenAI({ apiKey: process.env.GEMINI_API_
 exports.analyzeReportImage = functions.firestore
     .document('reports/{reportId}')
     .onCreate(async (snap, context) => {
-    var _a;
     const data = snap.data();
     if (data.aiStatus !== 'pending') {
         return;
@@ -50,7 +49,7 @@ exports.analyzeReportImage = functions.firestore
         if (!process.env.GEMINI_API_KEY) {
             throw new Error('GEMINI_API_KEY is not set');
         }
-        const storagePath = (_a = data.imageMetadata) === null || _a === void 0 ? void 0 : _a.storagePath;
+        const storagePath = data.imagePath;
         if (!storagePath) {
             throw new Error('No storage path found in report');
         }

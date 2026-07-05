@@ -1,0 +1,268 @@
+/* Floating in-graph control panel — bottom-left, away from Obsidian's
+   built-in filter/groups menu in the top-right. Holds the controls AND
+   the gradient legend (merged 2026-05-22). */
+.graph-heatmap-controls {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  min-width: 220px;
+  padding: 6px 8px 8px;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-normal);
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.graph-heatmap-controls.is-collapsed {
+  min-width: 0;
+}
+
+.graph-heatmap-controls-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.graph-heatmap-controls-title {
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.graph-heatmap-controls-collapse {
+  background: transparent;
+  border: none;
+  padding: 0 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.graph-heatmap-controls-collapse:hover {
+  color: var(--text-normal);
+}
+
+.graph-heatmap-controls-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.graph-heatmap-controls-row {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.graph-heatmap-controls-row > span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.graph-heatmap-controls-row select {
+  width: 100%;
+  font-size: 12px;
+  padding: 2px 4px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+}
+
+.graph-heatmap-controls-row input[type="checkbox"] {
+  justify-self: start;
+}
+
+.graph-heatmap-controls-preview {
+  height: 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+/* Range filter — one track, two thumbs (two range inputs overlaid) + a label */
+.graph-heatmap-range-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* The shared slider area. Both inputs are absolutely positioned on top of each
+   other here; only their thumbs are interactive (tracks are transparent). */
+.graph-heatmap-range-slider {
+  position: relative;
+  height: 16px;
+}
+
+/* Base line behind both thumbs. */
+.graph-heatmap-range-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  transform: translateY(-50%);
+  background: var(--background-modifier-border);
+  border-radius: 3px;
+}
+
+/* Highlighted span between the two thumbs. */
+.graph-heatmap-range-fill {
+  position: absolute;
+  top: 50%;
+  height: 3px;
+  transform: translateY(-50%);
+  background: var(--interactive-accent);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.graph-heatmap-range-slider input[type="range"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 16px;
+  margin: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  /* Let clicks fall through the transparent track to whatever is beneath; only
+     the thumbs (below) re-enable pointer events so either handle is grabbable. */
+  pointer-events: none;
+}
+
+.graph-heatmap-range-slider input[type="range"]::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+  height: 16px;
+}
+.graph-heatmap-range-slider input[type="range"]::-moz-range-track {
+  background: transparent;
+  border: none;
+  height: 16px;
+}
+
+.graph-heatmap-range-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  pointer-events: auto;
+  width: 13px;
+  height: 13px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--interactive-accent);
+  border: 2px solid var(--background-primary);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.graph-heatmap-range-slider input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--interactive-accent);
+  border: 2px solid var(--background-primary);
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.graph-heatmap-range-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.graph-heatmap-range-reset {
+  background: transparent;
+  border: none;
+  padding: 0 2px;
+  margin-left: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.graph-heatmap-range-reset:hover {
+  color: var(--text-normal);
+}
+
+/* dim / hide pill toggle under the Range label */
+.graph-heatmap-range-mode {
+  margin-top: 2px;
+  padding: 1px 6px;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1.4;
+  text-transform: lowercase;
+  color: var(--text-muted);
+  background: var(--background-primary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+}
+
+.graph-heatmap-range-mode:hover {
+  color: var(--text-normal);
+  border-color: var(--interactive-accent);
+}
+
+.graph-heatmap-range-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 1px;
+}
+
+/* Metric-aware "newest ←→ oldest" labels under the preview */
+.graph-heatmap-controls-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* Recency outline overlay — transparent canvas pinned (fixed) over the graph
+   canvas in viewport coordinates, click-through. */
+.graph-heatmap-outline-overlay {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Hover tooltip */
+.graph-heatmap-tooltip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  background: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--text-normal);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  max-width: 280px;
+}
+
+.graph-heatmap-tooltip-path {
+  font-weight: 600;
+  margin-bottom: 4px;
+  word-break: break-all;
+}
+
+.graph-heatmap-tooltip-rank {
+  color: var(--text-muted);
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--background-modifier-border);
+}

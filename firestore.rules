@@ -1,0 +1,13 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // MVP Hackathon Rules
+    // Allow anyone to read, create, or update documents (e.g. submit reports, add resolutions)
+    // Block all deletions to prevent a malicious user from wiping the demo database
+    match /{document=**} {
+      allow read, create, update: if true;
+      allow delete: if false;
+    }
+  }
+}

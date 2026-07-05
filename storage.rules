@@ -1,0 +1,18 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // MVP Hackathon Rules
+    match /{allPaths=**} {
+      // Anyone can view uploaded evidence images
+      allow read: if true;
+      
+      // Allow uploads only if it is an image and under 5MB
+      allow create: if request.resource.size < 5 * 1024 * 1024
+                    && request.resource.contentType.matches('image/.*');
+      
+      // Prevent modification or deletion of evidence
+      allow update, delete: if false;
+    }
+  }
+}

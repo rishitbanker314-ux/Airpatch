@@ -1,0 +1,1 @@
+export const HOTSPOT_RADIUS_METERS = 500;

@@ -1,0 +1,10 @@
+{
+  "id": "graph-heatmap",
+  "name": "Graph Heatmap",
+  "version": "0.5.3",
+  "minAppVersion": "1.4.0",
+  "description": "Color graph view nodes by recency, connectedness, word count, or file size. Range slider, Focus Mode (orphans/hubs/stale), recency marker, palettes, and background/connection color — all from an in-graph panel.",
+  "author": "mafgin",
+  "authorUrl": "https://github.com/mafgin",
+  "isDesktopOnly": false
+}

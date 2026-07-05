@@ -1,0 +1,228 @@
+{
+  "main": {
+    "id": "5ced53a028b404c1",
+    "type": "split",
+    "children": [
+      {
+        "id": "90ccfebc30dcbc40",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7d7cbf1c82d86d82",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Graph view"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "41ef45d8d267e609",
+    "type": "split",
+    "children": [
+      {
+        "id": "9ad0b5d67acb7578",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1ab8d4de0b9371ec",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "4659ce187e986116",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "266e4f56ece3b968",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "a69d709176ffc976",
+    "type": "split",
+    "children": [
+      {
+        "id": "6d5ceaaad485c0a3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "495c39e6b3039b48",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "cf84a6b5025ad4c8",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "14003db5d19b00a6",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "d48cd3831da74d1b",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "ae7a6adb4c020114",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "7d7cbf1c82d86d82",
+  "lastOpenFiles": [
+    "web/dist/assets/index-ukk-2s19.css",
+    "web/dist/assets/index-CClO1dd6.js",
+    "storage.rules",
+    "firestore.rules",
+    "web/dist/assets/index-CJGsEmtf.css",
+    "web/dist/assets/index-Cv9X2e8C.js",
+    "web/src/components/ResolutionPanel.tsx",
+    "web/src/components",
+    "web/src/services/resolutions.ts",
+    "web/dist/assets/index-DSls1eMS.css",
+    "web/dist/assets/index-BpFoBaG4.js",
+    "web/node_modules/@types/google.maps/README.md",
+    "web/node_modules/@googlemaps/js-api-loader/README.md",
+    "web/node_modules/@vis.gl/react-google-maps/README.md",
+    "web/node_modules/@vis.gl/react-google-maps/src/components/__tests__/__utils__/README.md",
+    "web/node_modules/@vis.gl/react-google-maps/LICENSE.md",
+    "web/node_modules/fast-equals/README.md",
+    "functions/node_modules/istanbul-reports/CHANGELOG.md",
+    "functions/node_modules/istanbul-reports/README.md",
+    "functions/node_modules/expect/README.md",
+    "functions/node_modules/jest-cli/README.md",
+    "functions/node_modules/jest-mock/README.md",
+    "functions/node_modules/exit-x/README.md",
+    "functions/node_modules/jest-matcher-utils/README.md",
+    "functions/node_modules/get-package-type/README.md",
+    "functions/node_modules/@types/istanbul-reports/README.md",
+    "functions/node_modules/@types/istanbul-lib-coverage/README.md",
+    "functions/node_modules/get-package-type/CHANGELOG.md",
+    "functions/node_modules/import-local/readme.md",
+    "functions/node_modules/istanbul-lib-coverage/README.md",
+    "functions/node_modules/istanbul-lib-coverage/CHANGELOG.md",
+    "functions/node_modules/istanbul-lib-instrument/README.md",
+    "functions/node_modules/istanbul-lib-instrument/CHANGELOG.md",
+    "functions/node_modules/v8-to-istanbul/README.md",
+    "functions/node_modules/babel-plugin-istanbul/README.md",
+    "functions/node_modules/babel-plugin-istanbul/CHANGELOG.md",
+    "functions/node_modules/istanbul-reports/lib/html-spa/assets/sort-arrow-sprite.png",
+    "functions/node_modules/istanbul-reports/lib/html/assets/sort-arrow-sprite.png",
+    "functions/node_modules/istanbul-reports/lib/html/assets/favicon.png",
+    "functions/node_modules/@jest/reporters/assets/jest_logo.png",
+    "web/src/assets/react.svg",
+    "web/src/assets/vite.svg",
+    "web/src/assets/hero.png",
+    "web/dist/assets/vite-BF8QNONU.svg",
+    "web/dist/assets/react-CHdo91hT.svg",
+    "web/dist/assets/hero-CLDdwZDr.png"
+  ]
+}

@@ -2,19 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.analyzeHotspotImage = analyzeHotspotImage;
 const env_1 = require("../config/env");
-/**
- * Helper to fetch image bytes from a URL.
- * Assumes the URL is publicly accessible or signed.
- */
-async function fetchImageBytes(url) {
-    const response = await fetch(url);
-    if (!response.ok) {
-        throw new Error(`Failed to fetch image from URL: ${response.statusText}`);
-    }
-    const arrayBuffer = await response.arrayBuffer();
-    return Buffer.from(arrayBuffer).toString('base64');
-}
-async function analyzeHotspotImage(imageUrl, note, categoryHint) {
+async function analyzeHotspotImage(base64Image, note, categoryHint) {
     var _a, _b, _c, _d, _e;
     const config = (0, env_1.getConfig)();
     // Since we don't know the exact SDK version mapping in this environment, 
@@ -22,7 +10,6 @@ async function analyzeHotspotImage(imageUrl, note, categoryHint) {
     const API_KEY = config.geminiApiKey;
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
     try {
-        const base64Data = await fetchImageBytes(imageUrl);
         // Construct the prompt
         let textPrompt = `Analyze this image to determine if it shows a pollution event. `;
         if (categoryHint) {
@@ -46,7 +33,7 @@ async function analyzeHotspotImage(imageUrl, note, categoryHint) {
                         {
                             inline_data: {
                                 mime_type: "image/jpeg",
-                                data: base64Data
+                                data: base64Image
                             }
                         }
                     ]

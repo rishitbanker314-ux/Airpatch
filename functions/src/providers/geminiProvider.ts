@@ -8,21 +8,10 @@ export interface GeminiAnalysisResult {
   reason: string;
 }
 
-/**
- * Helper to fetch image bytes from a URL. 
- * Assumes the URL is publicly accessible or signed.
- */
-async function fetchImageBytes(url: string): Promise<string> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch image from URL: ${response.statusText}`);
-  }
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer).toString('base64');
-}
+
 
 export async function analyzeHotspotImage(
-  imageUrl: string,
+  base64Image: string,
   note?: string,
   categoryHint?: string
 ): Promise<GeminiAnalysisResult> {
@@ -34,7 +23,6 @@ export async function analyzeHotspotImage(
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
   try {
-    const base64Data = await fetchImageBytes(imageUrl);
     
     // Construct the prompt
     let textPrompt = `Analyze this image to determine if it shows a pollution event. `;
@@ -60,7 +48,7 @@ export async function analyzeHotspotImage(
           {
             inline_data: {
               mime_type: "image/jpeg",
-              data: base64Data
+              data: base64Image
             }
           }
         ]

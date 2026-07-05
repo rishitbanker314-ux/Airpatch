@@ -178,6 +178,7 @@
   },
   "active": "7d7cbf1c82d86d82",
   "lastOpenFiles": [
+    "web/src/services/authService.ts",
     "web/src/pages/SmokeTest.tsx",
     "firestore-debug.log",
     "firebase-debug.log",
@@ -188,7 +189,6 @@
     "web/dist/assets/index-DGe_IhxO.js",
     "web/dist/assets/index-ukk-2s19.css",
     "web/dist/assets/index-CClO1dd6.js",
-    "storage.rules",
     "web/node_modules/@types/google.maps/README.md",
     "web/node_modules/@googlemaps/js-api-loader/README.md",
     "web/node_modules/@vis.gl/react-google-maps/README.md",

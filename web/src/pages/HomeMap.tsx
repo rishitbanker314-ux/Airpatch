@@ -13,7 +13,7 @@ export function HomeMap() {
   const [filter, setFilter] = useState<PollutionCategory | 'all'>('all');
   const navigate = useNavigate();
 
-  const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 }); // Default to NYC
+  const [mapCenter, setMapCenter] = useState({ lat: 23.0225, lng: 72.5714 }); // Default to Ahmedabad
 
   useEffect(() => {
     const fetchHotspots = async () => {

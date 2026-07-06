@@ -34,7 +34,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createReport = void 0;
-const functions = __importStar(require("firebase-functions"));
+const functions = __importStar(require("firebase-functions/v1"));
 exports.createReport = functions.https.onCall(async (_data, _context) => {
     // TODO: Implement report creation
     return { reportId: 'dummy-id' };

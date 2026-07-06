@@ -1,35 +1,59 @@
-import { httpsCallable } from 'firebase/functions';
-import { functions } from './firebase';
+import { collection, doc, getDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { db } from './firebase';
 import { parseDate } from '../utils/date';
 import type { Hotspot, Report } from '../shared/types';
 
 export const getHotspots = async (): Promise<Hotspot[]> => {
-  const getHotspotsFn = httpsCallable<void, any[]>(functions, 'getHotspots');
-  const response = await getHotspotsFn();
-  return response.data.map((h: any) => ({
-    ...h,
-    firstSeenAt: parseDate(h.firstSeenAt),
-    updatedAt: parseDate(h.updatedAt),
-    latestReportAt: parseDate(h.latestReportAt)
-  })) as Hotspot[];
+  const q = query(
+    collection(db, 'hotspots'),
+    where('status', '==', 'active')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(d => {
+    const data = d.data();
+    return {
+      id: d.id,
+      ...data,
+      firstSeenAt: parseDate(data.firstSeenAt),
+      updatedAt: parseDate(data.updatedAt),
+      latestReportAt: parseDate(data.latestReportAt),
+    } as Hotspot;
+  });
 };
 
-export const getHotspotDetails = async (id: string): Promise<{ hotspot: Hotspot, reports: Report[] }> => {
-  const getHotspotDetailsFn = httpsCallable<{ hotspotId: string }, { hotspot: any, reports: any[] }>(functions, 'getHotspotDetails');
-  const response = await getHotspotDetailsFn({ hotspotId: id });
-  
+export const getHotspotDetails = async (id: string): Promise<{ hotspot: Hotspot; reports: Report[] }> => {
+  const hotspotRef = doc(db, 'hotspots', id);
+  const hotspotSnap = await getDoc(hotspotRef);
+
+  if (!hotspotSnap.exists()) {
+    throw new Error('Hotspot not found');
+  }
+
+  const hData = hotspotSnap.data();
   const hotspot = {
-    ...response.data.hotspot,
-    firstSeenAt: parseDate(response.data.hotspot.firstSeenAt),
-    updatedAt: parseDate(response.data.hotspot.updatedAt),
-    latestReportAt: parseDate(response.data.hotspot.latestReportAt)
+    id: hotspotSnap.id,
+    ...hData,
+    firstSeenAt: parseDate(hData.firstSeenAt),
+    updatedAt: parseDate(hData.updatedAt),
+    latestReportAt: parseDate(hData.latestReportAt),
   } as Hotspot;
-  
-  const reports = response.data.reports.map((r: any) => ({
-    ...r,
-    createdAt: parseDate(r.createdAt),
-    updatedAt: parseDate(r.updatedAt),
-  })) as Report[];
+
+  const reportsQuery = query(
+    collection(db, 'reports'),
+    where('hotspotId', '==', id),
+    orderBy('createdAt', 'desc')
+  );
+  const reportsSnap = await getDocs(reportsQuery);
+
+  const reports = reportsSnap.docs.map(d => {
+    const rData = d.data();
+    return {
+      id: d.id,
+      ...rData,
+      createdAt: parseDate(rData.createdAt),
+      updatedAt: parseDate(rData.updatedAt),
+    } as Report;
+  });
 
   return { hotspot, reports };
 };

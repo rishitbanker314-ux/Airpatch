@@ -32,13 +32,28 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
-    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const admin = __importStar(require("firebase-admin"));
-admin.initializeApp();
-__exportStar(require("./triggers/reportTriggers"), exports);
-__exportStar(require("./hotspots"), exports);
-__exportStar(require("./resolution"), exports);
-//# sourceMappingURL=index.js.map
+exports.onReportCreated = void 0;
+const functions = __importStar(require("firebase-functions/v1"));
+const reportOrchestrator_1 = require("../services/reportOrchestrator");
+exports.onReportCreated = functions.firestore
+    .document('reports/{reportId}')
+    .onCreate(async (snap, context) => {
+    const data = snap.data();
+    // Prevent re-processing if it already has a status
+    if (data.aiStatus && data.aiStatus !== 'pending') {
+        return;
+    }
+    try {
+        await (0, reportOrchestrator_1.processReportCreated)(context.params.reportId, data);
+    }
+    catch (error) {
+        console.error(`[ReportTrigger] Error processing report ${context.params.reportId}:`, error);
+        // Fallback update in case the orchestrator threw before it could write failed statuses
+        await snap.ref.update({
+            aiStatus: data.aiStatus || 'failed',
+            contextStatus: data.contextStatus || 'failed',
+        });
+    }
+});
+//# sourceMappingURL=reportTriggers.js.map

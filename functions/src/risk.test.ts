@@ -1,5 +1,5 @@
 import { calculateHotspotRisk } from './risk';
-import type { Hotspot, Report, GeoLocation } from '../../shared/types';
+import type { Hotspot, Report, GeoLocation } from './shared/types';
 
 describe('Hotspot Risk Engine', () => {
   const dummyLoc: GeoLocation = { lat: 0, lng: 0 };
@@ -27,8 +27,8 @@ describe('Hotspot Risk Engine', () => {
     imagePath: '',
     location: dummyLoc,
     status: 'pending',
-    aiStatus: 'processed',
-    contextStatus: 'processed',
+    aiStatus: 'completed',
+    contextStatus: 'completed',
     createdAt: baseDate,
     updatedAt: baseDate,
   };
@@ -61,11 +61,13 @@ describe('Hotspot Risk Engine', () => {
     const reportWithContext: Report = {
       ...baseReport,
       context: {
-        aqi: 120,
-        temperature: 25,
-        weatherCondition: 'Clear',
-        windSpeed: 10,
-        windDirection: 'N',
+        air: { aqi: 120 },
+        weather: {
+          temperatureC: 25,
+          weatherMain: 'Clear',
+          windSpeedMps: 10,
+          windDeg: 0
+        }
       }
     };
     
@@ -99,11 +101,13 @@ describe('Hotspot Risk Engine', () => {
     const reportWithHazardousContext: Report = {
       ...baseReport,
       context: {
-        aqi: 200,
-        temperature: 30,
-        weatherCondition: 'Smoke',
-        windSpeed: 15,
-        windDirection: 'E',
+        air: { aqi: 200 },
+        weather: {
+          temperatureC: 30,
+          weatherMain: 'Smoke',
+          windSpeedMps: 15,
+          windDeg: 90
+        }
       }
     };
     

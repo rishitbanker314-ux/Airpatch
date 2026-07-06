@@ -1,6 +1,7 @@
 export type PollutionCategory = 'waste_burning_smoke' | 'construction_dust' | 'industrial_smoke';
 export type ReportStatus = 'pending' | 'verified' | 'rejected' | 'resolved';
-export type ProcessingStatus = 'pending' | 'processed' | 'failed';
+export type AIProcessingStatus = 'pending' | 'completed' | 'failed';
+export type ContextProcessingStatus = 'pending' | 'completed' | 'partial' | 'failed';
 export type HotspotStatus = 'active' | 'resolved';
 export type RiskBand = 'low' | 'medium' | 'high' | 'critical';
 
@@ -25,24 +26,36 @@ export interface Report {
   imagePath: string;
   location: GeoLocation;
   status: ReportStatus;
-  aiStatus: ProcessingStatus;
-  contextStatus: ProcessingStatus;
+  aiStatus: AIProcessingStatus;
+  contextStatus: ContextProcessingStatus;
   aiVerification?: {
     isPollutionEvent: boolean;
     predictedCategory: PollutionCategory | 'none';
     confidence: number;
-    severity: number;
+    severity: 1 | 2 | 3 | 4 | 5;
     reason: string;
-    analyzedAt: Date;
+    analyzedAt?: Date;
   };
   context?: {
-    aqi: number;
-    pm25?: number;
-    pm10?: number;
-    temperature: number;
-    weatherCondition: string;
-    windSpeed: number;
-    windDirection: string;
+    weather?: {
+      temperatureC?: number;
+      humidityPct?: number;
+      windSpeedMps?: number;
+      windDeg?: number;
+      weatherMain?: string;
+      weatherDescription?: string;
+      fetchedAt?: Date;
+    };
+    air?: {
+      aqi?: number;
+      pm25?: number;
+      pm10?: number;
+      co?: number;
+      no2?: number;
+      o3?: number;
+      so2?: number;
+      fetchedAt?: Date;
+    };
   };
   hotspotId?: string;
   createdAt: Date;

@@ -20,7 +20,7 @@ export async function analyzeHotspotImage(
   // Since we don't know the exact SDK version mapping in this environment, 
   // we can securely use the native REST API with fetch to guarantee compatibility.
   const API_KEY = config.geminiApiKey;
-  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
   try {
     

@@ -5,6 +5,22 @@ import type { Report } from '../shared/types';
 import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { ResolutionPanel } from '../components/ResolutionPanel';
 
+function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    completed: 'bg-green-100 text-green-800',
+    partial: 'bg-orange-100 text-orange-800',
+    failed: 'bg-red-100 text-red-800',
+  };
+  const badgeStyle = styles[status] || 'bg-gray-100 text-gray-800';
+  
+  return (
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${badgeStyle}`}>
+      {status}
+    </span>
+  );
+}
+
 export function ReportDetail() {
   const { id } = useParams();
   const [report, setReport] = useState<Report | null>(null);
@@ -96,16 +112,20 @@ export function ReportDetail() {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
               <div>
-                <p className="text-sm font-medium text-gray-500">Location</p>
-                <p className="text-sm text-gray-900 mt-1">
+                <p className="text-sm font-medium text-gray-500 mb-1">Location</p>
+                <p className="text-sm text-gray-900">
                   {report.location.lat.toFixed(4)}, {report.location.lng.toFixed(4)}
                 </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">AI Status</p>
-                <p className="text-sm text-gray-900 mt-1 capitalize">{report.aiStatus}</p>
+                <p className="text-sm font-medium text-gray-500 mb-1">AI Verification</p>
+                <StatusBadge status={report.aiStatus} />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Environmental Context</p>
+                <StatusBadge status={report.contextStatus} />
               </div>
             </div>
 
@@ -116,10 +136,16 @@ export function ReportDetail() {
               </div>
             )}
 
-            {report.aiVerification && report.aiStatus === 'processed' && (
+            {report.aiVerification && report.aiStatus === 'completed' && (
               <div className="pt-4 border-t border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">AI Verification</h3>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-gray-500">Valid Event</span>
+                    <span className={`text-sm font-semibold ${report.aiVerification.isPollutionEvent ? 'text-green-600' : 'text-red-600'}`}>
+                      {report.aiVerification.isPollutionEvent ? 'Yes' : 'No'}
+                    </span>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-gray-500">Prediction</span>
                     <span className="text-sm font-semibold text-gray-900 capitalize">
@@ -143,11 +169,11 @@ export function ReportDetail() {
                     <div className="flex items-center gap-2">
                       <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full ${(report.aiVerification.severity || 0) > 70 ? 'bg-red-500' : (report.aiVerification.severity || 0) > 30 ? 'bg-yellow-500' : 'bg-green-500'}`}
-                          style={{ width: `${report.aiVerification.severity || 0}%` }}
+                          className={`h-full ${(report.aiVerification.severity || 0) > 3 ? 'bg-red-500' : (report.aiVerification.severity || 0) > 2 ? 'bg-yellow-500' : 'bg-green-500'}`}
+                          style={{ width: `${((report.aiVerification.severity || 0) / 5) * 100}%` }}
                         />
                       </div>
-                      <span className="text-sm text-gray-900">{report.aiVerification.severity || 0}/100</span>
+                      <span className="text-sm text-gray-900">{report.aiVerification.severity || 0}/5</span>
                     </div>
                   </div>
                   <div>
@@ -157,32 +183,32 @@ export function ReportDetail() {
                 </div>
               </div>
             )}
-            {report.context && report.contextStatus === 'processed' && (
+            {report.context && (report.contextStatus === 'completed' || report.contextStatus === 'partial') && (
               <div className="pt-4 border-t border-gray-100">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Environmental Context</h3>
                 <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">AQI</span>
-                    <span className={`text-lg font-bold ${(report.context.aqi || 0) > 150 ? 'text-red-500' : (report.context.aqi || 0) > 100 ? 'text-orange-500' : (report.context.aqi || 0) > 50 ? 'text-yellow-500' : 'text-green-500'}`}>
-                      {report.context.aqi ?? '--'}
+                    <span className={`text-lg font-bold ${(report.context.air?.aqi || 0) > 150 ? 'text-red-500' : (report.context.air?.aqi || 0) > 100 ? 'text-orange-500' : (report.context.air?.aqi || 0) > 50 ? 'text-yellow-500' : 'text-green-500'}`}>
+                      {report.context.air?.aqi ?? '--'}
                     </span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">Weather</span>
-                    <span className="text-md font-semibold text-gray-900">{report.context.weatherCondition || 'Unknown'}</span>
+                    <span className="text-md font-semibold text-gray-900">{report.context.weather?.weatherMain ?? 'Unknown'}</span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">Particulate Matter</span>
                     <span className="text-sm text-gray-700">
-                      PM2.5: {report.context.pm25 ?? '--'} µg/m³<br/>
-                      PM10: {report.context.pm10 ?? '--'} µg/m³
+                      PM2.5: {report.context.air?.pm25 ?? '--'} µg/m³<br/>
+                      PM10: {report.context.air?.pm10 ?? '--'} µg/m³
                     </span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">Wind & Temp</span>
                     <span className="text-sm text-gray-700">
-                      {report.context.temperature ?? '--'}°C<br/>
-                      {report.context.windSpeed ?? '--'} km/h {report.context.windDirection || ''}
+                      {report.context.weather?.temperatureC ?? '--'}°C, {report.context.weather?.humidityPct ?? '--'}% Hum<br/>
+                      {report.context.weather?.windSpeedMps ?? '--'} m/s
                     </span>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { processReportCreated } from '../services/reportOrchestrator';
 
 export const onReportCreated = functions.firestore

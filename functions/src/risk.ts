@@ -1,4 +1,4 @@
-import type { Hotspot, Report, RiskAssessment, RiskBand } from '../../shared/types';
+import type { Hotspot, Report, RiskAssessment, RiskBand } from './shared/types';
 
 /**
  * Calculates a heuristic operational risk score (0-100) for a hotspot.
@@ -33,13 +33,13 @@ export function calculateHotspotRisk(hotspot: Hotspot, reports: Report[]): RiskA
   // Use the most recent report's context
   const latestContext = reports.find(r => r.context)?.context;
   let contextScore = 0;
-  if (latestContext) {
-    if (latestContext.aqi > 150) {
+  if (latestContext && latestContext.air) {
+    if (latestContext.air.aqi && latestContext.air.aqi > 150) {
       contextScore = 20;
-      drivers.push(`Hazardous local AQI (${latestContext.aqi})`);
-    } else if (latestContext.aqi > 100) {
+      drivers.push(`Hazardous local AQI (${latestContext.air.aqi})`);
+    } else if (latestContext.air.aqi && latestContext.air.aqi > 100) {
       contextScore = 10;
-      drivers.push(`Unhealthy local AQI (${latestContext.aqi})`);
+      drivers.push(`Unhealthy local AQI (${latestContext.air.aqi})`);
     }
     score += contextScore;
   }

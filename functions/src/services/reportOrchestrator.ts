@@ -41,7 +41,8 @@ export async function processReportCreated(reportId: string, data: any) {
         path = parts.join('/');
       }
 
-      const bucket = bucketName ? admin.storage().bucket(bucketName) : admin.storage().bucket();
+      const defaultBucket = process.env.FIREBASE_STORAGE_BUCKET || 'airpatch-b750a.firebasestorage.app';
+      const bucket = bucketName ? admin.storage().bucket(bucketName) : admin.storage().bucket(defaultBucket);
       const file = bucket.file(path);
       const [buffer] = await file.download();
       const base64Image = buffer.toString('base64');

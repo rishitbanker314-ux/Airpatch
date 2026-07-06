@@ -129,19 +129,19 @@ export function HotspotDetail() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
               <div className="text-sm text-gray-500 dark:text-gray-400">AQI</div>
-              <div className="font-semibold text-lg">{latestContext.aqi}</div>
+              <div className="font-semibold text-lg">{latestContext.air?.aqi ?? 'N/A'}</div>
             </div>
             <div>
               <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center"><Cloud className="w-4 h-4 mr-1"/> PM2.5</div>
-              <div className="font-semibold text-lg">{latestContext.pm25 || 'N/A'} µg/m³</div>
+              <div className="font-semibold text-lg">{latestContext.air?.pm25 || 'N/A'} µg/m³</div>
             </div>
             <div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Temperature</div>
-              <div className="font-semibold text-lg">{latestContext.temperature}°C</div>
+              <div className="font-semibold text-lg">{latestContext.weather?.temperatureC ?? 'N/A'}°C</div>
             </div>
             <div>
               <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center"><Wind className="w-4 h-4 mr-1"/> Wind</div>
-              <div className="font-semibold text-lg">{latestContext.windSpeed} km/h</div>
+              <div className="font-semibold text-lg">{latestContext.weather?.windSpeedMps ?? 'N/A'} m/s</div>
             </div>
           </div>
         </div>

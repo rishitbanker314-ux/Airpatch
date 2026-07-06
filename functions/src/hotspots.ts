@@ -1,8 +1,8 @@
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
 import { HOTSPOT_RADIUS_METERS } from './config/constants';
 import { calculateDistanceMeters } from './utils/geo';
-import type { Report, Hotspot } from '../../shared/types';
+import type { Report, Hotspot } from './shared/types';
 import { calculateHotspotRisk } from './risk';
 
 export const assignReportTrigger = functions.firestore
@@ -12,9 +12,15 @@ export const assignReportTrigger = functions.firestore
     const after = change.after.data() as Report;
     const reportId = context.params.reportId;
 
-    // Only process when AI verification completes and it is a confirmed pollution event
-    if (before.aiStatus !== 'processed' && after.aiStatus === 'processed') {
-      if (after.aiVerification?.isPollutionEvent && !after.hotspotId) {
+    // Only process when AI verification completes
+    if (before.aiStatus !== 'completed' && after.aiStatus === 'completed') {
+      const hasValidLocation = after.location && typeof after.location.lat === 'number' && typeof after.location.lng === 'number';
+      const supportedCategories = ['waste_burning_smoke', 'construction_dust', 'industrial_smoke'];
+      const hasSupportedCategory = supportedCategories.includes(after.category);
+      const isPollution = after.aiVerification?.isPollutionEvent === true;
+      const isNotNone = after.aiVerification?.predictedCategory !== 'none';
+      
+      if (hasValidLocation && hasSupportedCategory && isPollution && isNotNone && !after.hotspotId) {
         await assignReportToHotspot(reportId, after);
       }
     }

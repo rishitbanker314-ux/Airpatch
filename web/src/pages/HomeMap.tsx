@@ -31,16 +31,6 @@ export function HomeMap() {
 
   const filteredHotspots = hotspots.filter(h => filter === 'all' || h.category === filter);
 
-  // Map category to a specific color for the pin
-  const getPinColor = (category: PollutionCategory) => {
-    switch (category) {
-      case 'waste_burning_smoke': return '#ef4444'; // red-500
-      case 'construction_dust': return '#eab308'; // yellow-500
-      case 'industrial_smoke': return '#8b5cf6'; // violet-500
-      default: return '#3b82f6';
-    }
-  };
-
   return (
     <div className="relative h-screen w-full flex flex-col">
       {/* Overlay Filter UI */}

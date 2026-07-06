@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where, orderBy } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { parseDate } from '../utils/date';
 import type { Hotspot, Report } from '../shared/types';

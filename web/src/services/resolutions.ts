@@ -1,4 +1,4 @@
-import { collection, doc, addDoc, query, where, getDocs, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, query, where, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { parseDate } from '../utils/date';

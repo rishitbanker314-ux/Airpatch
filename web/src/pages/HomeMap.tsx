@@ -20,16 +20,6 @@ export function HomeMap() {
       try {
         const data = await getHotspots();
         setHotspots(data);
-        
-        // Auto-center map on the active hotspots if available
-        if (data.length > 0) {
-          const sumLat = data.reduce((sum, h) => sum + h.center.lat, 0);
-          const sumLng = data.reduce((sum, h) => sum + h.center.lng, 0);
-          setMapCenter({
-            lat: sumLat / data.length,
-            lng: sumLng / data.length
-          });
-        }
       } catch (err) {
         console.error('Failed to fetch hotspots:', err);
       } finally {

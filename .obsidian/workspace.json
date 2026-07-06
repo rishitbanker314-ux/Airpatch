@@ -178,6 +178,8 @@
   },
   "active": "0faafd5ef9ea6d88",
   "lastOpenFiles": [
+    "functions/src/createAhmedabadHotspot.ts",
+    "web/checkHotspots.js",
     "check_report.js",
     "functions/firebase-debug.log",
     "functions/check_bucket.js",
@@ -189,8 +191,6 @@
     "test_prod.js",
     "smoke_test.py",
     "functions/node_modules/pglite-2/LICENSE",
-    "functions/node_modules/firebase-tools/templates/init/apptesting/smoke_test.yaml",
-    "functions/node_modules/firebase-tools/templates/init/apptesting",
     "functions/node_modules/firebase-tools/prompts/FIREBASE_FUNCTIONS.md",
     "functions/node_modules/firebase-tools/prompts/FIREBASE.md",
     "functions/node_modules/firebase-tools/templates/firebase-studio-export/workflows/cleanup.md",

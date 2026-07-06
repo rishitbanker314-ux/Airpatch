@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Map, AdvancedMarker, Pin } from '@vis.gl/react-google-maps';
+import { Map, Marker } from '@vis.gl/react-google-maps';
 import { getHotspots } from '../services/hotspots';
 import type { Hotspot, PollutionCategory } from '../shared/types';
 import { AlertTriangle, Factory, Trash2 } from 'lucide-react';
@@ -90,22 +90,15 @@ export function HomeMap() {
           defaultZoom={11}
           center={mapCenter}
           onCenterChanged={(ev) => setMapCenter(ev.detail.center)}
-          mapId="AIRPATCH_MVP_MAP_ID"
           disableDefaultUI={true}
         >
           {!loading && filteredHotspots.map((hotspot) => (
-            <AdvancedMarker
+            <Marker
               key={hotspot.id}
               position={{ lat: hotspot.center.lat, lng: hotspot.center.lng }}
               onClick={() => navigate(`/hotspot/${hotspot.id}`)}
-              title={`Hotspot: ${hotspot.category}`}
-            >
-              <Pin 
-                background={getPinColor(hotspot.category)} 
-                borderColor="#ffffff" 
-                glyphColor="#ffffff" 
-              />
-            </AdvancedMarker>
+              title={hotspot.category.replace(/_/g, ' ')}
+            />
           ))}
         </Map>
       </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import type { User as DbUser } from '../../../shared/types';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -20,7 +21,8 @@ export const signInWithGoogle = async () => {
         displayName: user.displayName || 'Anonymous',
         email: user.email || '',
         role: 'citizen',
-        createdAt: serverTimestamp()
+        createdAt: serverTimestamp(),
+        points: 0
       });
     }
 
@@ -42,16 +44,37 @@ export const signOutUser = async () => {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
+  const [dbUser, setDbUser] = useState<DbUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    let unsubscribeDb: (() => void) | undefined;
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      
+      if (currentUser) {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        unsubscribeDb = onSnapshot(userDocRef, (snap) => {
+          if (snap.exists()) {
+            setDbUser({ id: snap.id, ...snap.data() } as DbUser);
+          } else {
+            setDbUser(null);
+          }
+        });
+      } else {
+        setDbUser(null);
+        if (unsubscribeDb) unsubscribeDb();
+      }
+      
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeDb) unsubscribeDb();
+    };
   }, []);
 
-  return { user, loading, signInWithGoogle, signOutUser };
+  return { user, dbUser, loading, signInWithGoogle, signOutUser };
 }

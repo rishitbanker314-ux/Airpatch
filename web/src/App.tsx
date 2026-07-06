@@ -10,7 +10,7 @@ import { useAuth } from './services/authService';
 
 function App() {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
-  const { user, loading, signInWithGoogle, signOutUser } = useAuth();
+  const { user, dbUser, loading, signInWithGoogle, signOutUser } = useAuth();
 
   return (
     <APIProvider apiKey={apiKey}>
@@ -26,6 +26,9 @@ function App() {
           <div className="ml-auto flex items-center gap-4">
             {!loading && user ? (
               <>
+                <span className="text-sm font-medium text-amber-500 flex items-center gap-1">
+                  ⭐️ {dbUser?.points || 0} Pts
+                </span>
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   {user.displayName || user.email}
                 </span>

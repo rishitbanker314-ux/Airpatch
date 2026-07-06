@@ -82,6 +82,14 @@ export async function processReportCreated(reportId: string, data: any) {
   if (geminiResult.status === 'fulfilled') {
     updates.aiStatus = 'completed';
     updates.aiVerification = geminiResult.value;
+    
+    // Gamification: Award 10 points if it is a verified pollution event
+    if (geminiResult.value.isPollutionEvent && data.createdBy) {
+      const userRef = db.collection('users').doc(data.createdBy);
+      await userRef.update({
+        points: admin.firestore.FieldValue.increment(10)
+      }).catch(err => console.error('[Orchestrator] Failed to award points:', err));
+    }
   } else {
     updates.aiStatus = 'failed';
   }

@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "8ceda6d31da7878d",
+        "id": "199578516cf21634",
         "type": "tabs",
         "children": [
           {
-            "id": "0faafd5ef9ea6d88",
+            "id": "fa0507f270933ef3",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -176,21 +176,21 @@
       "bases:Create new base": false
     }
   },
-  "active": "0faafd5ef9ea6d88",
+  "active": "fa0507f270933ef3",
   "lastOpenFiles": [
+    "functions/firebase-debug.log",
+    "functions/lib/createAhmedabadHotspot.js",
+    "functions/lib/createAhmedabadHotspot.js.map",
+    "dummy.jpg",
     "functions/src/createAhmedabadHotspot.ts",
     "web/checkHotspots.js",
     "check_report.js",
-    "functions/firebase-debug.log",
     "functions/check_bucket.js",
     "functions/node_modules/superstatic/node_modules/commander/Readme.md",
     "functions/check_report.js",
-    "dummy.jpg",
     "e2e_test.py",
     "functions/test_prod.js",
     "test_prod.js",
-    "smoke_test.py",
-    "functions/node_modules/pglite-2/LICENSE",
     "functions/node_modules/firebase-tools/prompts/FIREBASE_FUNCTIONS.md",
     "functions/node_modules/firebase-tools/prompts/FIREBASE.md",
     "functions/node_modules/firebase-tools/templates/firebase-studio-export/workflows/cleanup.md",

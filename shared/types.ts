@@ -15,6 +15,7 @@ export interface User {
   id: string;
   role: 'citizen' | 'authority';
   createdAt: Date;
+  points?: number;
 }
 
 export interface Report {

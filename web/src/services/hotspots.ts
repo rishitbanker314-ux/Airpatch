@@ -40,8 +40,7 @@ export const getHotspotDetails = async (id: string): Promise<{ hotspot: Hotspot;
 
   const reportsQuery = query(
     collection(db, 'reports'),
-    where('hotspotId', '==', id),
-    orderBy('createdAt', 'desc')
+    where('hotspotId', '==', id)
   );
   const reportsSnap = await getDocs(reportsQuery);
 
@@ -54,6 +53,9 @@ export const getHotspotDetails = async (id: string): Promise<{ hotspot: Hotspot;
       updatedAt: parseDate(rData.updatedAt),
     } as Report;
   });
+
+  // Sort client-side to avoid requiring a composite index in Firestore
+  reports.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return { hotspot, reports };
 };

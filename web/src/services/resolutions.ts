@@ -54,13 +54,12 @@ export const getResolutionsForHotspot = async (hotspotId: string): Promise<Resol
   const resolutionsRef = collection(db, 'resolutions');
   const q = query(
     resolutionsRef, 
-    where('hotspotId', '==', hotspotId),
-    orderBy('createdAt', 'desc')
+    where('hotspotId', '==', hotspotId)
   );
 
   const snapshot = await getDocs(q);
   
-  return snapshot.docs.map(d => {
+  const resolutions = snapshot.docs.map(d => {
     const data = d.data();
     return {
       id: d.id,
@@ -68,4 +67,7 @@ export const getResolutionsForHotspot = async (hotspotId: string): Promise<Resol
       createdAt: parseDate(data.createdAt),
     } as Resolution;
   });
+
+  resolutions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  return resolutions;
 };

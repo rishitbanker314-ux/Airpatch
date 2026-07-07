@@ -15,6 +15,14 @@ export function Dashboard() {
 
   const [activeFilter, setActiveFilter] = useState<string>('All Reports');
 
+  // Convert OpenWeather AQI (1-5) to approximate US AQI (0-300+)
+  const getUsAqi = (owAqi: number) => {
+    if (!owAqi) return 0;
+    if (owAqi > 5) return owAqi; // Assume already US AQI if > 5
+    const mapping: Record<number, number> = { 1: 30, 2: 75, 3: 125, 4: 175, 5: 250 };
+    return mapping[Math.round(owAqi)] || 0;
+  };
+
   useEffect(() => {
     const fetchHotspots = async () => {
       try {
@@ -30,8 +38,9 @@ export function Dashboard() {
     fetchHotspots();
     
     const unsubscribeTrend = subscribeToNetworkTrend((trendBuckets) => {
-      setTrendData(trendBuckets);
-      setPeakAqi(Math.max(...trendBuckets, 0));
+      const usAqiBuckets = trendBuckets.map(getUsAqi);
+      setTrendData(usAqiBuckets);
+      setPeakAqi(Math.max(...usAqiBuckets, 0));
     });
 
     return () => {

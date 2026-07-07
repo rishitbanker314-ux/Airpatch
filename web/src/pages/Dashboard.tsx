@@ -12,16 +12,7 @@ export function Dashboard() {
   const [peakAqi, setPeakAqi] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [activeFilter, setActiveFilter] = useState<string>('All Reports');
-
-  // Convert OpenWeather AQI (1-5) to approximate US AQI (0-300+)
-  const getUsAqi = (owAqi: number) => {
-    if (!owAqi) return 0;
-    if (owAqi > 5) return owAqi; // Assume already US AQI if > 5
-    const mapping: Record<number, number> = { 1: 30, 2: 75, 3: 125, 4: 175, 5: 250 };
-    return mapping[Math.round(owAqi)] || 0;
-  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {

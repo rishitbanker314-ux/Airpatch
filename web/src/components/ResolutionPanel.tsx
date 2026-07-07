@@ -79,46 +79,48 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
     <div id="resolution-panel" className="mb-6 scroll-mt-24">
       {/* Display Resolutions if they exist */}
       {resolutions.length > 0 && (
-        <div className="space-y-4 mb-6">
-          <h3 className="font-bold text-lg dark:text-white flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-500" />
+        <div className="mb-6">
+          <h3 className="font-headline text-lg font-bold text-on-surface flex items-center gap-2 mb-4">
+            <CheckCircle className="w-5 h-5 text-primary" />
             Resolution History
           </h3>
-          {resolutions.map(res => (
-            <div key={res.id} className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
-              <div className="flex justify-between items-start mb-2">
-                <span className="font-semibold text-green-800 dark:text-green-300">Resolved by Authority</span>
-                <span className="text-xs text-green-600 dark:text-green-400">
-                  {res.createdAt.toLocaleDateString()} {res.createdAt.toLocaleTimeString()}
-                </span>
-              </div>
-              {res.note && (
-                <p className="text-sm text-green-900 dark:text-green-100 mb-3 whitespace-pre-wrap">{res.note}</p>
-              )}
-              {res.evidenceImageUrl && (
-                <div className="mt-2">
-                  <a href={res.evidenceImageUrl} target="_blank" rel="noreferrer" className="inline-block rounded-lg overflow-hidden border border-green-200 dark:border-green-700">
-                    <img src={res.evidenceImageUrl} alt="Evidence" className="h-32 object-cover" />
-                  </a>
+          <div className="space-y-3">
+            {resolutions.map(res => (
+              <div key={res.id} className="bg-surface-bright border border-outline-variant/30 rounded-2xl p-4 flex gap-4 shadow-sm">
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-bold text-sm text-on-surface">Authority Resolution</span>
+                    <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">
+                      {res.createdAt.toLocaleDateString()} {res.createdAt.toLocaleTimeString()}
+                    </span>
+                  </div>
+                  {res.note && (
+                    <p className="text-xs text-on-surface-variant leading-relaxed">{res.note}</p>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+                {res.evidenceImageUrl && (
+                  <a href={res.evidenceImageUrl} target="_blank" rel="noreferrer" className="flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border border-outline-variant/20 hover:opacity-80 transition-opacity">
+                    <img src={res.evidenceImageUrl} alt="Evidence" className="w-full h-full object-cover" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Show Form or Resolve Button if not fully resolved and User is logged in */}
       {!isResolved && user && (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <div className="bg-surface-bright rounded-2xl shadow-sm border border-outline-variant/30 p-6">
           {!showForm ? (
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-bold text-lg dark:text-white">Authority Actions</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Mark this {reportId ? 'Report' : 'Hotspot'} as resolved if the incident has been addressed.</p>
+                <h3 className="font-headline font-bold text-lg text-on-surface">Authority Actions</h3>
+                <p className="text-sm text-on-surface-variant">Mark this {reportId ? 'Report' : 'Hotspot'} as resolved if the incident has been addressed.</p>
               </div>
               <button 
                 onClick={() => setShowForm(true)}
-                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                className="bg-primary hover:bg-primary/90 text-on-primary px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2"
               >
                 <CheckCircle className="w-4 h-4" />
                 Resolve {reportId ? 'Report' : 'Hotspot'}
@@ -126,22 +128,22 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
             </div>
           ) : (
             <form onSubmit={handleSubmit}>
-              <h3 className="font-bold text-lg dark:text-white mb-4">Submit Resolution</h3>
+              <h3 className="font-headline font-bold text-lg text-on-surface mb-4">Submit Resolution</h3>
               
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Resolution Note (Optional)</label>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Resolution Note (Optional)</label>
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-white dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-green-500 outline-none min-h-[100px]"
+                  className="w-full border border-outline-variant/30 rounded-xl p-3 bg-surface-container-low text-sm text-on-surface focus:ring-2 focus:ring-primary focus:border-transparent outline-none min-h-[80px]"
                   placeholder="Describe the actions taken..."
                 />
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Evidence Image (Optional)</label>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Evidence Image (Optional)</label>
                 <div className="flex items-center gap-3">
-                  <label className="cursor-pointer bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
+                  <label className="cursor-pointer bg-surface-container hover:bg-surface-container-high text-on-surface px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-2 text-sm border border-outline-variant/20">
                     <ImageIcon className="w-4 h-4" />
                     Select Image
                     <input 
@@ -155,17 +157,17 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
                       }}
                     />
                   </label>
-                  {imageFile && <span className="text-sm text-gray-600 dark:text-gray-400 truncate max-w-[200px]">{imageFile.name}</span>}
+                  {imageFile && <span className="text-xs font-bold text-on-surface-variant truncate max-w-[200px]">{imageFile.name}</span>}
                 </div>
               </div>
 
-              {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+              {error && <div className="text-error text-sm font-bold mb-4">{error}</div>}
 
               <div className="flex justify-end gap-3">
                 <button 
                   type="button" 
                   onClick={() => setShowForm(false)}
-                  className="px-4 py-2 rounded-lg font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  className="px-6 py-2.5 rounded-xl font-bold text-sm text-on-surface-variant hover:bg-surface-container-high transition-colors"
                   disabled={isSubmitting}
                 >
                   Cancel
@@ -173,7 +175,7 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-green-500 hover:bg-green-600 disabled:bg-green-300 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                  className="bg-primary hover:bg-primary/90 disabled:bg-primary/50 text-on-primary px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 flex items-center gap-2"
                 >
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                   {isSubmitting ? 'Submitting...' : 'Confirm Resolution'}

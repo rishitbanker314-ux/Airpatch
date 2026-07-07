@@ -101,42 +101,16 @@ export const subscribeToUserReports = (userId: string, callback: (reports: Repor
 };
 
 
-export const subscribeToNetworkTrend = (callback: (buckets: number[]) => void): (() => void) => {
-  const reportsRef = collection(db, 'reports');
-  const time24hAgo = new Date();
-  time24hAgo.setHours(time24hAgo.getHours() - 24);
-  
-  const q = query(
-    reportsRef,
-    where('createdAt', '>=', time24hAgo),
-    orderBy('createdAt', 'asc')
-  );
-  
-  return onSnapshot(q, (snapshot) => {
-    const reports = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        createdAt: parseDate(data.createdAt),
-        aqi: data.context?.air?.aqi || 0
-      };
-    });
-    
-    // We want 9 buckets for the 24 hours
-    const buckets = new Array(9).fill(0);
-    const bucketDurationMs = (24 * 60 * 60 * 1000) / 9;
-    
-    reports.forEach(report => {
-      const timeDiffMs = report.createdAt.getTime() - time24hAgo.getTime();
-      let bucketIndex = Math.floor(timeDiffMs / bucketDurationMs);
-      if (bucketIndex >= 9) bucketIndex = 8;
-      if (bucketIndex >= 0) {
-        buckets[bucketIndex] = Math.max(buckets[bucketIndex], report.aqi);
-      }
-    });
-    
-    callback(buckets);
-  }, (error) => {
-    console.error("Error listening to network trend:", error);
-    callback(new Array(9).fill(0));
-  });
+import { getFunctions, httpsCallable } from 'firebase/functions';
+
+export const fetchCityAqiTrend = async (lat?: number, lng?: number): Promise<number[]> => {
+  const functions = getFunctions();
+  const getCityAqiTrendFunc = httpsCallable(functions, 'getCityAqiTrend');
+  try {
+    const result = await getCityAqiTrendFunc({ lat, lng });
+    return (result.data as any).buckets;
+  } catch (error) {
+    console.error("Error fetching city AQI trend:", error);
+    return new Array(9).fill(0);
+  }
 };

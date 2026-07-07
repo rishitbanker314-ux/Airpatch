@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHotspots } from '../services/hotspots';
-import { subscribeToNetworkTrend } from '../services/reports';
+import { fetchCityAqiTrend } from '../services/reports';
 import type { Hotspot, PollutionCategory } from '../shared/types';
 import { Loader2 } from 'lucide-react';
 
@@ -24,28 +24,23 @@ export function Dashboard() {
   };
 
   useEffect(() => {
-    const fetchHotspots = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const hotspotsData = await getHotspots();
+        const [hotspotsData, trendBuckets] = await Promise.all([
+          getHotspots(),
+          fetchCityAqiTrend(28.6139, 77.2090) // New Delhi coordinates
+        ]);
         setHotspots(hotspotsData);
+        setTrendData(trendBuckets);
+        setPeakAqi(Math.max(...trendBuckets, 0));
       } catch (err) {
-        console.error('Failed to fetch hotspots:', err);
+        console.error('Failed to fetch dashboard data:', err);
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
-    fetchHotspots();
-    
-    const unsubscribeTrend = subscribeToNetworkTrend((trendBuckets) => {
-      const usAqiBuckets = trendBuckets.map(getUsAqi);
-      setTrendData(usAqiBuckets);
-      setPeakAqi(Math.max(...usAqiBuckets, 0));
-    });
-
-    return () => {
-      unsubscribeTrend();
-    };
+    fetchDashboardData();
   }, []);
 
   if (loading) {

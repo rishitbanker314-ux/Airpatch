@@ -87,3 +87,24 @@ export async function getAirPollution(lat: number, lng: number): Promise<OpenWea
     throw new Error(`Air pollution fetch failed: ${err.message}`);
   }
 }
+
+/**
+ * Fetch Historical Air Pollution (AQI) data from OpenWeather API
+ */
+export async function getHistoricalAirPollution(lat: number, lng: number, startUnix: number, endUnix: number): Promise<any> {
+  const config = getConfig();
+  const apiKey = config.openWeatherApiKey;
+  
+  const endpoint = `http://api.openweathermap.org/data/2.5/air_pollution/history?lat=${lat}&lon=${lng}&start=${startUnix}&end=${endUnix}&appid=${apiKey}`;
+  
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+      throw new Error(`OpenWeather AQI History API Error: ${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (err: any) {
+    console.error("[OpenWeatherProvider] Error fetching historical air pollution:", err);
+    throw new Error(`Historical air pollution fetch failed: ${err.message}`);
+  }
+}

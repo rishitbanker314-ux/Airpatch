@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
+import { getHistoricalAirPollution } from './providers/openWeatherProvider';
 
 admin.initializeApp();
 
@@ -53,4 +54,48 @@ export const seedDummyHotspots = functions.https.onRequest(async (req, res) => {
   }
 
   res.send('Dummy hotspots in Ahmedabad seeded successfully!');
+});
+
+export const getCityAqiTrend = functions.https.onCall(async (data, context) => {
+  // Default to New Delhi coordinates
+  const lat = data.lat || 28.6139;
+  const lng = data.lng || 77.2090;
+
+  const end = Math.floor(Date.now() / 1000);
+  const start = end - 24 * 60 * 60; // 24 hours ago
+
+  try {
+    const history = await getHistoricalAirPollution(lat, lng, start, end);
+    
+    // We want 9 buckets for the 24 hours
+    const buckets = new Array(9).fill(0);
+    const bucketDuration = (24 * 60 * 60) / 9;
+    
+    if (history.list && Array.isArray(history.list)) {
+      history.list.forEach((entry: any) => {
+        const timeDiff = entry.dt - start;
+        let bucketIndex = Math.floor(timeDiff / bucketDuration);
+        if (bucketIndex >= 9) bucketIndex = 8;
+        if (bucketIndex >= 0) {
+          // OpenWeather AQI is 1-5. Store raw AQI, we map it later on frontend
+          // But wait, it's better to map it right here!
+          let usAqi = 0;
+          const owAqi = entry.main.aqi || 0;
+          if (owAqi === 1) usAqi = 30;
+          else if (owAqi === 2) usAqi = 75;
+          else if (owAqi === 3) usAqi = 125;
+          else if (owAqi === 4) usAqi = 175;
+          else if (owAqi === 5) usAqi = 250;
+          else usAqi = owAqi; // fallback
+          
+          buckets[bucketIndex] = Math.max(buckets[bucketIndex], usAqi);
+        }
+      });
+    }
+    
+    return { buckets };
+  } catch (error) {
+    console.error("Failed to fetch city AQI trend:", error);
+    throw new functions.https.HttpsError('internal', 'Failed to fetch city AQI trend');
+  }
 });

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../services/authService';
-import { getUserReports } from '../services/reports';
+import { subscribeToUserReports } from '../services/reports';
 import type { Report } from '../shared/types';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -19,18 +19,12 @@ export function Profile() {
       return;
     }
 
-    const fetchReports = async () => {
-      try {
-        const userReports = await getUserReports(user.uid);
-        setReports(userReports);
-      } catch (error) {
-        console.error("Error fetching user reports:", error);
-      } finally {
-        setLoadingReports(false);
-      }
-    };
+    const unsubscribe = subscribeToUserReports(user.uid, (userReports) => {
+      setReports(userReports);
+      setLoadingReports(false);
+    });
 
-    fetchReports();
+    return () => unsubscribe();
   }, [user, loading, navigate]);
 
   if (loading || loadingReports) {

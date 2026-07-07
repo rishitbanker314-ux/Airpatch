@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, serverTimestamp, query, where, orderBy, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { parseDate } from '../utils/date';
@@ -75,22 +75,27 @@ export const subscribeToReport = (id: string, callback: (report: Report | null) 
   });
 };
 
-export const getUserReports = async (userId: string): Promise<Report[]> => {
+export const subscribeToUserReports = (userId: string, callback: (reports: Report[]) => void): (() => void) => {
   const reportsRef = collection(db, 'reports');
   const q = query(
     reportsRef,
     where('createdBy', '==', userId),
     orderBy('createdAt', 'desc')
   );
-  const snapshot = await getDocs(q);
   
-  return snapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      ...data,
-      id: doc.id,
-      createdAt: parseDate(data.createdAt),
-      updatedAt: parseDate(data.updatedAt),
-    } as Report;
+  return onSnapshot(q, (snapshot) => {
+    const reports = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        id: doc.id,
+        createdAt: parseDate(data.createdAt),
+        updatedAt: parseDate(data.updatedAt),
+      } as Report;
+    });
+    callback(reports);
+  }, (error) => {
+    console.error("Error listening to user reports:", error);
+    callback([]);
   });
 };

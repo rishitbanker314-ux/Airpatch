@@ -76,7 +76,7 @@ export function HotspotDetail() {
             <span className="text-on-surface-variant text-sm font-medium">ID: #{hotspot.id.slice(0, 8).toUpperCase()}</span>
           </div>
           <h2 className="text-3xl font-bold text-on-surface capitalize">
-             {hotspot.category.replace(/_/g, ' ')} Hotspot
+             {hotspot.name || `${hotspot.category.replace(/_/g, ' ')} Hotspot`}
           </h2>
           <p className="text-base text-on-surface-variant mt-1">
              Pollution anomaly detected at {hotspot.center.lat.toFixed(4)}, {hotspot.center.lng.toFixed(4)}.
@@ -84,11 +84,14 @@ export function HotspotDetail() {
         </div>
       </div>
 
-      {/* Side-by-Side Diagnostic & Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-        
-        {/* Left: AI Diagnostic Summary */}
-        <div className="lg:col-span-5 flex flex-col gap-6">
+      {hotspot.imageUrl && (
+        <div className="w-full h-64 md:h-96 rounded-3xl overflow-hidden mb-8 shadow-sm">
+          <img src={hotspot.imageUrl} alt={hotspot.name} className="w-full h-full object-cover" />
+        </div>
+      )}
+
+      {/* Diagnostic Details */}
+      <div className="flex flex-col gap-6 mb-12 max-w-4xl mx-auto">
           <div className="bg-surface-bright rounded-3xl p-8 border border-outline-variant/30 shadow-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                <AlertTriangle className="w-32 h-32" />
@@ -103,7 +106,7 @@ export function HotspotDetail() {
               <div>
                 <h4 className="text-sm font-bold text-primary mb-2 uppercase tracking-wide">Root Cause Analysis</h4>
                 <p className="text-base text-on-surface-variant leading-relaxed">
-                   {hotspot.risk?.summary || "Pattern matching suggests a high probability of illegal nocturnal discharge. Emission signatures align with high-sulfur fuel combustion."}
+                   {hotspot.description || hotspot.risk?.summary || "Pattern matching suggests a high probability of illegal nocturnal discharge. Emission signatures align with high-sulfur fuel combustion."}
                 </p>
               </div>
               
@@ -185,59 +188,6 @@ export function HotspotDetail() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Right: Detailed Map/Evidence Panel */}
-        <div className="lg:col-span-7">
-          <div className="bg-surface-bright rounded-3xl border border-outline-variant/30 shadow-sm overflow-hidden h-full flex flex-col">
-            {/* Map Viewport - using static placeholder for UI match, but we could embed actual map */}
-            <div className="relative flex-1 min-h-[400px] bg-surface-container overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000&auto=format&fit=crop" 
-                alt="Map View" 
-                className="w-full h-full object-cover mix-blend-overlay opacity-50"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-surface/40 to-transparent pointer-events-none"></div>
-              
-              <div className="absolute top-6 left-6 flex flex-col gap-2">
-                <div className="glass-surface p-2 rounded-xl flex items-center gap-3 pr-4 shadow-sm border border-white/50">
-                  <div className="w-10 h-10 bg-error/20 rounded-lg flex items-center justify-center">
-                     <MapPin className="text-error w-5 h-5" fill="currentColor" stroke="none" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold">Source Origin</p>
-                    <p className="text-xs text-on-surface-variant capitalize">{hotspot.category.replace(/_/g, ' ')} Cluster</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                <button className="w-10 h-10 glass-surface rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-sm">
-                  <Plus className="w-5 h-5 text-on-surface" />
-                </button>
-                <button className="w-10 h-10 glass-surface rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-sm">
-                  <Minus className="w-5 h-5 text-on-surface" />
-                </button>
-                <button className="w-10 h-10 glass-surface rounded-lg flex items-center justify-center hover:bg-surface-container-high transition-colors shadow-sm">
-                  <Layers className="w-5 h-5 text-on-surface" />
-                </button>
-              </div>
-            </div>
-
-            {/* Panel Tabs */}
-            <div className="px-8 py-4 border-t border-outline-variant/20 bg-surface-container-low flex items-center justify-between">
-              <div className="flex gap-8">
-                <button className="text-sm font-bold text-primary border-b-2 border-primary pb-4 -mb-[17px]">Live Heatmap</button>
-                <button className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors pb-4 -mb-[17px]">Sensor Network</button>
-                <button className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors pb-4 -mb-[17px]">Wind Trajectory</button>
-              </div>
-              <div className="flex items-center gap-2 text-xs font-medium text-on-surface-variant">
-                <span className="w-2 h-2 bg-secondary rounded-full animate-pulse"></span>
-                Live Feed Active
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Community Evidence Gallery */}

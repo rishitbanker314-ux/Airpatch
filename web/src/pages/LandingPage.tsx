@@ -33,9 +33,13 @@ export function LandingPage() {
                <button onClick={signOutUser} aria-label="sign out" className="p-2 rounded-full hover:bg-error/10 transition-all duration-300 scale-102 active:scale-95 text-on-surface-variant hover:text-error">
                   <LogOut className="w-5 h-5" />
                </button>
-               <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm">
-                 {user.displayName?.charAt(0) || 'U'}
-               </div>
+               <Link to="/profile" className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white font-bold text-sm overflow-hidden border border-transparent hover:border-primary transition-all">
+                 {user.photoURL ? (
+                   <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                 ) : (
+                   user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'
+                 )}
+               </Link>
             </div>
           ) : !loading ? (
              <button onClick={signInWithGoogle} className="btn-primary py-2 px-4 text-sm flex items-center gap-2">

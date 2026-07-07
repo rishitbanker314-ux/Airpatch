@@ -51,15 +51,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="mt-auto">
           {user ? (
             <div className="flex flex-col gap-3">
-               <div className="flex items-center gap-3 bg-surface-container-low p-3 rounded-xl">
-                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
-                    {user.displayName?.charAt(0) || 'U'}
+               <Link to="/profile" className="flex items-center gap-3 bg-surface-container-low p-3 rounded-xl hover:bg-surface-container transition-colors">
+                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden">
+                    {user.photoURL ? (
+                      <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'
+                    )}
                  </div>
                  <div className="flex-1 truncate">
                     <p className="text-sm font-bold text-on-surface truncate">{user.displayName || user.email}</p>
                     <p className="text-xs text-primary font-bold">⭐️ {dbUser?.points || 0} Pts</p>
                  </div>
-               </div>
+               </Link>
                <button onClick={signOutUser} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-on-surface-variant font-bold text-sm hover:bg-error/10 hover:text-error transition-all">
                   <LogOut className="w-4 h-4" /> Sign Out
                </button>
@@ -88,9 +92,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
              </div>
            )}
            {user ? (
-             <div className="h-8 w-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm lg:hidden">
-               {user.displayName?.charAt(0) || 'U'}
-             </div>
+             <Link to="/profile" className="h-8 w-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm lg:hidden overflow-hidden border border-transparent hover:border-primary transition-all">
+               {user.photoURL ? (
+                 <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+               ) : (
+                 user.displayName?.charAt(0) || user.email?.charAt(0) || 'U'
+               )}
+             </Link>
            ) : !loading ? (
              <button onClick={signInWithGoogle} className="text-primary font-bold text-sm lg:hidden">Sign In</button>
            ) : null}

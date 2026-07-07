@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { submitReport } from '../services/reports';
+import { useAuth } from '../services/authService';
 import type { PollutionCategory } from '../shared/types';
 import { MapPin, UploadCloud, AlertCircle, Loader2 } from 'lucide-react';
 
 export function ReportForm() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [image, setImage] = useState<File | null>(null);
-  const [category, setCategory] = useState<PollutionCategory>('waste_burning_smoke');
+  const [category, setCategory] = useState<PollutionCategory>('unpicked_waste');
   const [note, setNote] = useState('');
   const [lat, setLat] = useState<string>('');
   const [lng, setLng] = useState<string>('');
@@ -67,6 +69,7 @@ export function ReportForm() {
 
     try {
       const reportId = await submitReport({
+        createdBy: user?.uid,
         category,
         note,
         location: { lat: parsedLat, lng: parsedLng }
@@ -82,67 +85,69 @@ export function ReportForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Report Pollution</h2>
+    <div className="min-h-full bg-background py-8 px-4 sm:px-6 lg:px-8 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=28.6139,77.2090&zoom=11&size=1000x1000&maptype=roadmap&style=feature:water|element:geometry|color:0xBEE3F8&key=dummy')] bg-cover bg-center">
+      <div className="max-w-md mx-auto glass-panel p-8">
+        <h2 className="text-2xl font-bold text-on-surface mb-6">Report Pollution</h2>
         
         {error && (
-          <div className="mb-4 bg-red-50 p-4 rounded-md flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
-            <p className="text-sm text-red-700">{error}</p>
+          <div className="mb-4 bg-error-container p-4 rounded-md flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-error mt-0.5" />
+            <p className="text-sm text-on-error-container">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Image Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Evidence Photo</label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md relative hover:bg-gray-50 transition-colors">
+            <label className="block text-sm font-medium text-on-surface-variant mb-2">Evidence Photo</label>
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-outline border-dashed rounded-md relative hover:bg-black/5 transition-colors cursor-pointer group">
               <div className="space-y-1 text-center w-full">
                 {image ? (
                   <div className="flex flex-col items-center">
-                    <img src={URL.createObjectURL(image)} alt="Preview" className="h-32 object-contain mb-3 rounded-md" />
+                    <img src={URL.createObjectURL(image)} alt="Preview" className="h-32 object-contain mb-3 rounded-md shadow-sm" />
                   </div>
                 ) : (
-                  <UploadCloud className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                  <UploadCloud className="mx-auto h-12 w-12 text-outline mb-2 group-hover:text-primary transition-colors" />
                 )}
-                <div className="flex text-sm text-gray-600 justify-center w-full">
-                  <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                <div className="flex text-sm text-on-surface justify-center w-full">
+                  <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary-container focus-within:outline-none">
                     <span>{image ? 'Change file' : 'Upload a file'}</span>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageChange} />
                   </label>
                 </div>
-                {image && <p className="text-xs text-gray-500 mt-2 truncate max-w-xs mx-auto">{image.name}</p>}
+                {image && <p className="text-xs text-on-surface-variant mt-2 truncate max-w-xs mx-auto">{image.name}</p>}
               </div>
             </div>
           </div>
 
           {/* Category */}
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+            <label htmlFor="category" className="block text-sm font-medium text-on-surface-variant mb-1">Category</label>
             <select
               id="category"
               value={category}
               onChange={(e) => setCategory(e.target.value as PollutionCategory)}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+              className="glass-input block w-full"
             >
-              <option value="waste_burning_smoke">Waste Burning Smoke</option>
+
               <option value="construction_dust">Construction Dust</option>
               <option value="industrial_smoke">Industrial Smoke</option>
+              <option value="unpicked_waste">Unpicked Up Waste</option>
+              <option value="stagnant_water">Stagnant Water</option>
             </select>
           </div>
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-            <div className="flex gap-2 mb-2">
+            <label className="block text-sm font-medium text-on-surface-variant mb-1">Location</label>
+            <div className="flex gap-2 mb-3">
               <input
                 type="number"
                 step="any"
                 placeholder="Lat"
                 value={lat}
                 onChange={(e) => setLat(e.target.value)}
-                className="flex-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                className="glass-input flex-1"
               />
               <input
                 type="number"
@@ -150,14 +155,14 @@ export function ReportForm() {
                 placeholder="Lng"
                 value={lng}
                 onChange={(e) => setLng(e.target.value)}
-                className="flex-1 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                className="glass-input flex-1"
               />
             </div>
             <button
               type="button"
               onClick={handleGetLocation}
               disabled={isLocating}
-              className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="w-full inline-flex justify-center items-center px-4 py-2 border border-outline shadow-sm text-sm font-medium rounded-md text-on-surface bg-white/50 hover:bg-white/80 focus:outline-none transition-colors"
             >
               {isLocating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <MapPin className="w-4 h-4 mr-2" />}
               Use Current Location
@@ -166,14 +171,14 @@ export function ReportForm() {
 
           {/* Note */}
           <div>
-            <label htmlFor="note" className="block text-sm font-medium text-gray-700">Note (Optional)</label>
+            <label htmlFor="note" className="block text-sm font-medium text-on-surface-variant mb-1">Note (Optional)</label>
             <div className="mt-1">
               <textarea
                 id="note"
                 rows={3}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md p-2"
+                className="glass-input w-full block"
                 placeholder="Additional details..."
               />
             </div>
@@ -182,7 +187,7 @@ export function ReportForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="w-full btn-primary flex justify-center disabled:opacity-50 mt-4"
           >
             {isSubmitting ? (
               <>

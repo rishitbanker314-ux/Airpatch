@@ -17,10 +17,9 @@ export const submitReport = async (data: Partial<Report>, imageFile: File): Prom
   const reportRef = doc(collection(db, 'reports'));
   const reportId = reportRef.id;
 
-  // Use any to bypass Date vs FieldValue typing issues during write
   const reportDoc: any = {
     id: reportId,
-    createdBy: 'anonymous', // Dummy UID for MVP
+    createdBy: data.createdBy || 'anonymous', // Use real UID if provided
     category: data.category,
     location: data.location,
     imageUrl: downloadUrl,
@@ -54,4 +53,25 @@ export const getReport = async (id: string): Promise<Report | null> => {
     } as Report;
   }
   return null;
+};
+
+import { onSnapshot } from 'firebase/firestore';
+
+export const subscribeToReport = (id: string, callback: (report: Report | null) => void): (() => void) => {
+  const reportRef = doc(db, 'reports', id);
+  return onSnapshot(reportRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      callback({
+        ...data,
+        createdAt: parseDate(data.createdAt),
+        updatedAt: parseDate(data.updatedAt),
+      } as Report);
+    } else {
+      callback(null);
+    }
+  }, (error) => {
+    console.error("Error listening to report:", error);
+    callback(null);
+  });
 };

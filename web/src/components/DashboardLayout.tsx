@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, MapPin, Activity, LayoutDashboard, LogOut, LogIn } from 'lucide-react';
+import { Home, MapPin, Activity, LayoutDashboard, LogOut, LogIn, User } from 'lucide-react';
 import { useAuth } from '../services/authService';
 
 interface DashboardLayoutProps {
@@ -15,6 +15,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Map', path: '/map', icon: MapPin },
     { name: 'Report', path: '/report', icon: Activity },
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Profile', path: '/profile', icon: User },
   ];
 
   return (

@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, serverTimestamp, query, where, orderBy, getDocs, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { parseDate } from '../utils/date';
@@ -55,7 +55,6 @@ export const getReport = async (id: string): Promise<Report | null> => {
   return null;
 };
 
-import { onSnapshot } from 'firebase/firestore';
 
 export const subscribeToReport = (id: string, callback: (report: Report | null) => void): (() => void) => {
   const reportRef = doc(db, 'reports', id);
@@ -73,5 +72,25 @@ export const subscribeToReport = (id: string, callback: (report: Report | null) 
   }, (error) => {
     console.error("Error listening to report:", error);
     callback(null);
+  });
+};
+
+export const getUserReports = async (userId: string): Promise<Report[]> => {
+  const reportsRef = collection(db, 'reports');
+  const q = query(
+    reportsRef,
+    where('createdBy', '==', userId),
+    orderBy('createdAt', 'desc')
+  );
+  const snapshot = await getDocs(q);
+  
+  return snapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      ...data,
+      id: doc.id,
+      createdAt: parseDate(data.createdAt),
+      updatedAt: parseDate(data.updatedAt),
+    } as Report;
   });
 };

@@ -178,6 +178,7 @@
   },
   "active": "8881be37bc68c625",
   "lastOpenFiles": [
+    "web/src/pages/Profile.tsx",
     "firebase-debug.log",
     "web/dist/assets/index-DiYleosn.css",
     "web/dist/assets/index-CG0z6pfj.js",
@@ -188,7 +189,6 @@
     "web/dist/assets/index-DCuiHXxJ.css",
     "web/dist/assets/index-CFLWp6GW.js",
     "web/dist/assets/index-BwxFURCU.css",
-    "web/dist/assets/index-DTk4aT7N.js",
     "functions/node_modules/@modelcontextprotocol/sdk/node_modules/jose/README.md",
     "web/dist/icons.svg",
     "web/dist/favicon.svg",

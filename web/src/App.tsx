@@ -7,6 +7,7 @@ import { HotspotDetail } from './pages/HotspotDetail';
 import { Dashboard } from './pages/Dashboard';
 import { SmokeTest } from './pages/SmokeTest';
 import { LandingPage } from './pages/LandingPage';
+import { Profile } from './pages/Profile';
 import { DashboardLayout } from './components/DashboardLayout';
 
 function AppContent() {
@@ -18,6 +19,7 @@ function AppContent() {
       <Route path="/report/:id" element={<DashboardLayout><ReportDetail /></DashboardLayout>} />
       <Route path="/hotspot/:id" element={<DashboardLayout><HotspotDetail /></DashboardLayout>} />
       <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+      <Route path="/profile" element={<DashboardLayout><Profile /></DashboardLayout>} />
       <Route path="/smoke-test" element={<SmokeTest />} />
     </Routes>
   );

@@ -1,4 +1,4 @@
-import { collection, doc, addDoc, query, where, getDocs, serverTimestamp, updateDoc, increment, setDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, query, where, getDocs, serverTimestamp, updateDoc, increment, setDoc, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage, auth } from './firebase';
 import { parseDate } from '../utils/date';
@@ -28,7 +28,7 @@ export const submitResolution = async (
 
   const resolutionData: any = {
     hotspotId,
-    resolvedBy: 'authority_demo',
+    resolvedBy: auth.currentUser?.uid || 'anonymous',
     createdAt: serverTimestamp(),
   };
 
@@ -87,4 +87,31 @@ export const getResolutionsForHotspot = async (hotspotId: string): Promise<Resol
 
   resolutions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   return resolutions;
+};
+
+export const subscribeToUserResolutions = (
+  userId: string, 
+  onUpdate: (resolutions: Resolution[]) => void
+) => {
+  const resolutionsRef = collection(db, 'resolutions');
+  const q = query(
+    resolutionsRef, 
+    where('resolvedBy', '==', userId)
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const resolutions = snapshot.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        createdAt: data.createdAt ? parseDate(data.createdAt) : new Date(),
+      } as Resolution;
+    });
+
+    resolutions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    onUpdate(resolutions);
+  }, (error) => {
+    console.error("Error subscribing to user resolutions:", error);
+  });
 };

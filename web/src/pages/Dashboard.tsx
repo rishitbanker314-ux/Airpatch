@@ -13,26 +13,36 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('All Reports');
+  const [trendPeriod, setTrendPeriod] = useState<'24h' | 'weekly' | 'monthly'>('24h');
+  const [isTrendMenuOpen, setIsTrendMenuOpen] = useState(false);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchHotspotsData = async () => {
       try {
-        const [hotspotsData, trendBuckets] = await Promise.all([
-          getHotspots(),
-          fetchCityAqiTrend(28.6139, 77.2090) // New Delhi coordinates
-        ]);
+        const hotspotsData = await getHotspots();
         setHotspots(hotspotsData);
-        setTrendData(trendBuckets);
-        setPeakAqi(Math.max(...trendBuckets, 0));
       } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
+        console.error('Failed to fetch hotspots:', err);
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
-    fetchDashboardData();
+    fetchHotspotsData();
   }, []);
+
+  useEffect(() => {
+    const fetchTrendData = async () => {
+      try {
+        const trendBuckets = await fetchCityAqiTrend(28.6139, 77.2090, trendPeriod);
+        setTrendData(trendBuckets);
+        setPeakAqi(Math.max(...trendBuckets, 0));
+      } catch (err) {
+        console.error('Failed to fetch trend data:', err);
+      }
+    };
+    fetchTrendData();
+  }, [trendPeriod]);
 
   if (loading) {
     return (
@@ -291,11 +301,42 @@ export function Dashboard() {
         {/* Right Sidebar: Analytics & Trends */}
         <aside className="w-full xl:w-[340px] flex flex-col gap-4">
           <div className="glass-card p-5 flex flex-col h-full min-h-[300px]">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-bold text-on-surface">24h Network Trend</h3>
-              <button className="text-outline hover:text-primary transition-colors">
+            <div className="flex justify-between items-center mb-6 relative">
+              <h3 className="text-lg font-bold text-on-surface">
+                {trendPeriod === '24h' ? '24h Network Trend' : trendPeriod === 'weekly' ? 'Weekly Trend' : 'Monthly Trend'}
+              </h3>
+              <button 
+                className="text-outline hover:text-primary transition-colors"
+                onClick={() => setIsTrendMenuOpen(!isTrendMenuOpen)}
+              >
                 <span className="material-symbols-outlined">more_horiz</span>
               </button>
+              
+              {isTrendMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsTrendMenuOpen(false)}></div>
+                  <div className="absolute right-0 top-8 w-48 bg-surface border border-outline/20 rounded-xl shadow-lg z-50 overflow-hidden py-1">
+                    <button 
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-variant transition-colors ${trendPeriod === '24h' ? 'text-primary font-bold bg-primary/5' : 'text-on-surface'}`}
+                      onClick={() => { setTrendPeriod('24h'); setIsTrendMenuOpen(false); }}
+                    >
+                      24h Network Trend
+                    </button>
+                    <button 
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-variant transition-colors ${trendPeriod === 'weekly' ? 'text-primary font-bold bg-primary/5' : 'text-on-surface'}`}
+                      onClick={() => { setTrendPeriod('weekly'); setIsTrendMenuOpen(false); }}
+                    >
+                      Weekly Trend
+                    </button>
+                    <button 
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-surface-variant transition-colors ${trendPeriod === 'monthly' ? 'text-primary font-bold bg-primary/5' : 'text-on-surface'}`}
+                      onClick={() => { setTrendPeriod('monthly'); setIsTrendMenuOpen(false); }}
+                    >
+                      Monthly Trend
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Pseudo-chart visualization */}

@@ -103,11 +103,11 @@ export const subscribeToUserReports = (userId: string, callback: (reports: Repor
 
 import { getFunctions, httpsCallable } from 'firebase/functions';
 
-export const fetchCityAqiTrend = async (lat?: number, lng?: number): Promise<number[]> => {
+export const fetchCityAqiTrend = async (lat?: number, lng?: number, period?: string): Promise<number[]> => {
   const functions = getFunctions();
   const getCityAqiTrendFunc = httpsCallable(functions, 'getCityAqiTrend');
   try {
-    const result = await getCityAqiTrendFunc({ lat, lng });
+    const result = await getCityAqiTrendFunc({ lat, lng, period });
     return (result.data as any).buckets;
   } catch (error) {
     console.error("Error fetching city AQI trend:", error);

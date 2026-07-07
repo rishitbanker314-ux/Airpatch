@@ -60,16 +60,21 @@ export const getCityAqiTrend = functions.https.onCall(async (data, context) => {
   // Default to New Delhi coordinates
   const lat = data.lat || 28.6139;
   const lng = data.lng || 77.2090;
+  const period = data.period || '24h';
+
+  let days = 1;
+  if (period === 'weekly') days = 7;
+  else if (period === 'monthly') days = 30;
 
   const end = Math.floor(Date.now() / 1000);
-  const start = end - 24 * 60 * 60; // 24 hours ago
+  const start = end - days * 24 * 60 * 60;
 
   try {
     const history = await getHistoricalAirPollution(lat, lng, start, end);
     
-    // We want 9 buckets for the 24 hours
+    // We want 9 buckets
     const buckets = new Array(9).fill(0);
-    const bucketDuration = (24 * 60 * 60) / 9;
+    const bucketDuration = (days * 24 * 60 * 60) / 9;
     
     if (history.list && Array.isArray(history.list)) {
       history.list.forEach((entry: any) => {

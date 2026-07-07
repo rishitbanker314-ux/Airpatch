@@ -12,6 +12,7 @@ export function HomeMap() {
   const navigate = useNavigate();
 
   const [mapCenter, setMapCenter] = useState({ lat: 28.6139, lng: 77.2090 }); // Default to New Delhi
+  const [showToast, setShowToast] = useState(true);
 
   useEffect(() => {
     const fetchHotspots = async () => {
@@ -142,21 +143,23 @@ export function HomeMap() {
       </div>
 
       {/* Recent Activity Feed (Toast style, Bottom Center) */}
-      <div className="absolute z-30 bottom-[90px] md:bottom-[40px] left-1/2 -translate-x-1/2 w-[90%] max-w-md pointer-events-auto">
-        <div className="bg-surface-glass backdrop-blur-xl border border-white/50 shadow-lg rounded-full px-4 py-3 flex items-center justify-between gap-3 animate-pulse">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[18px]">campaign</span>
+      {showToast && (
+        <div className="absolute z-30 bottom-[90px] md:bottom-[40px] left-1/2 -translate-x-1/2 w-[90%] max-w-md pointer-events-auto">
+          <div className="bg-surface-glass backdrop-blur-xl border border-white/50 shadow-lg rounded-full px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+                <span className="material-symbols-outlined text-[18px]">campaign</span>
+              </div>
+              <p className="text-sm font-semibold text-on-surface line-clamp-1">
+                System active in New Delhi - <span className="text-secondary font-bold">All OK</span>
+              </p>
             </div>
-            <p className="text-sm font-semibold text-on-surface line-clamp-1">
-              System active in New Delhi - <span className="text-secondary font-bold">All OK</span>
-            </p>
+            <button onClick={() => setShowToast(false)} className="text-on-surface-variant hover:text-primary transition-colors">
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
           </div>
-          <button className="text-on-surface-variant hover:text-primary transition-colors">
-            <span className="material-symbols-outlined text-[20px]">close</span>
-          </button>
         </div>
-      </div>
+      )}
 
       {/* Floating Action Button (FAB) - Map Focus Action */}
       <button 

@@ -1,6 +1,6 @@
-import { collection, doc, addDoc, query, where, getDocs, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, query, where, getDocs, serverTimestamp, updateDoc, increment, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db, storage, auth } from './firebase';
 import { parseDate } from '../utils/date';
 import type { Resolution } from '../shared/types';
 
@@ -54,6 +54,14 @@ export const submitResolution = async (
       status: 'resolved',
       updatedAt: serverTimestamp(),
     });
+  }
+
+  // Award 20 points to the user for resolving the report
+  if (auth.currentUser) {
+    const userRef = doc(db, 'users', auth.currentUser.uid);
+    await setDoc(userRef, {
+      points: increment(20)
+    }, { merge: true });
   }
 
   return { success: true, resolutionId: resolutionRef.id };

@@ -98,12 +98,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </header>
 
       {/* Main Content Canvas */}
-      <main className="relative w-full lg:ml-64 lg:w-[calc(100%-16rem)] h-screen pt-16 pb-20 lg:pb-0 bg-surface-container-low overflow-y-auto">
+      <main className="relative w-full lg:ml-64 lg:w-[calc(100%-16rem)] h-screen pt-16 pb-24 lg:pb-0 bg-surface-container-low overflow-y-auto overflow-x-hidden">
         {children}
       </main>
 
       {/* Bottom Navigation Bar (Mobile Only) */}
-      <nav className="lg:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-2 pb-6 pt-3 glass-panel border-t border-white/20 rounded-t-2xl rounded-b-none">
+      <nav className="lg:hidden fixed bottom-0 w-full z-50 flex justify-between items-center px-1 pb-6 pt-3 glass-panel border-t border-white/20 rounded-t-2xl rounded-b-none">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || (item.path === '/map' && location.pathname.startsWith('/hotspot/'));
           const Icon = item.icon;
@@ -111,24 +111,24 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <Link
               key={item.name}
               to={item.path}
-              className={`flex flex-col items-center justify-center rounded-xl px-4 py-2 transition-all ${
+              className={`flex flex-col items-center justify-center rounded-xl px-2 py-2 transition-all flex-1 min-w-0 ${
                 isActive 
                   ? 'bg-primary-container text-white' 
                   : 'text-on-surface-variant hover:bg-primary-container/20'
               }`}
             >
               <Icon className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-bold">{item.name}</span>
+              <span className="text-[9px] font-bold truncate max-w-full">{item.name}</span>
             </Link>
           );
         })}
         {user && (
             <button
               onClick={signOutUser}
-              className="flex flex-col items-center justify-center rounded-xl px-4 py-2 text-on-surface-variant hover:bg-error/10 hover:text-error transition-all"
+              className="flex flex-col items-center justify-center rounded-xl px-2 py-2 text-on-surface-variant hover:bg-error/10 hover:text-error transition-all flex-1 min-w-0"
             >
               <LogOut className="w-5 h-5 mb-1" />
-              <span className="text-[10px] font-bold">Logout</span>
+              <span className="text-[9px] font-bold truncate max-w-full">Logout</span>
             </button>
         )}
       </nav>

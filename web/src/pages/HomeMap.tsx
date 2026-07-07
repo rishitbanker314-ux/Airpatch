@@ -161,13 +161,6 @@ export function HomeMap() {
         </div>
       )}
 
-      {/* Floating Action Button (FAB) - Map Focus Action */}
-      <button 
-        onClick={() => setMapCenter({ lat: 28.6139, lng: 77.2090 })}
-        className="absolute z-40 bottom-24 right-4 md:bottom-[40px] md:right-[40px] w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_8px_24px_rgba(0,74,211,0.4)] flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-300 pointer-events-auto border border-white/20"
-      >
-        <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
-      </button>
 
       {/* LAYER 0: Map Background Canvas */}
       <div className="flex-1 w-full relative z-0">

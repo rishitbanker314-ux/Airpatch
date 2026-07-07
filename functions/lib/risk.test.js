@@ -6,7 +6,7 @@ describe('Hotspot Risk Engine', () => {
     const baseDate = new Date();
     const baseHotspot = {
         id: 'test-hotspot',
-        category: 'waste_burning_smoke',
+        category: 'unpicked_waste',
         center: dummyLoc,
         reportIds: [],
         activeReportCount: 1,
@@ -20,7 +20,7 @@ describe('Hotspot Risk Engine', () => {
     const baseReport = {
         id: 'test-report',
         createdBy: 'u1',
-        category: 'waste_burning_smoke',
+        category: 'unpicked_waste',
         imageUrl: '',
         imagePath: '',
         location: dummyLoc,

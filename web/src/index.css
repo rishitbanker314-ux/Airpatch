@@ -113,4 +113,26 @@
     -webkit-font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
   }
+  
+  .glass-input {
+    background: rgba(0, 0, 0, 0.03);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  }
+
+  .scanning-bar {
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(to right, transparent, var(--color-primary), transparent);
+    animation: scan 2s infinite ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0.5;
+  }
+
+  @keyframes scan {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(100px); }
+    100% { transform: translateY(0); }
+  }
 }

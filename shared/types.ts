@@ -1,5 +1,5 @@
-export type PollutionCategory = 'waste_burning_smoke' | 'construction_dust' | 'industrial_smoke';
-export type ReportStatus = 'pending' | 'verified' | 'rejected' | 'resolved';
+export type PollutionCategory = 'construction_dust' | 'industrial_smoke' | 'unpicked_waste' | 'stagnant_water';
+export type ReportStatus = 'pending' | 'verified' | 'rejected' | 'failed' | 'resolved';
 export type AIProcessingStatus = 'pending' | 'completed' | 'failed';
 export type ContextProcessingStatus = 'pending' | 'completed' | 'partial' | 'failed';
 export type HotspotStatus = 'active' | 'resolved';

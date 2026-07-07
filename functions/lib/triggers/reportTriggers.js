@@ -53,6 +53,7 @@ exports.onReportCreated = functions.firestore
         await snap.ref.update({
             aiStatus: data.aiStatus || 'failed',
             contextStatus: data.contextStatus || 'failed',
+            status: data.status === 'pending' ? 'failed' : data.status,
         });
     }
 });

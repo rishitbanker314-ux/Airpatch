@@ -4,17 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "199578516cf21634",
+        "id": "2f9b8fe5364e99f1",
         "type": "tabs",
         "children": [
           {
-            "id": "fa0507f270933ef3",
+            "id": "8881be37bc68c625",
             "type": "leaf",
             "state": {
-              "type": "graph",
+              "type": "empty",
               "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "icon": "lucide-file",
+              "title": "New tab"
             }
           }
         ]
@@ -176,21 +176,24 @@
       "bases:Create new base": false
     }
   },
-  "active": "fa0507f270933ef3",
+  "active": "8881be37bc68c625",
   "lastOpenFiles": [
-    "functions/firebase-debug.log",
-    "functions/lib/createAhmedabadHotspot.js",
-    "functions/lib/createAhmedabadHotspot.js.map",
+    "web/dist/assets/index-DBwdop5d.css",
+    "web/dist/assets/index-B97A1BTp.js",
+    "web/dist/assets/index-DCuiHXxJ.css",
+    "web/dist/assets/index-CFLWp6GW.js",
+    "web/dist/assets/index-BwxFURCU.css",
+    "web/dist/assets/index-DTk4aT7N.js",
+    "web/dist/assets/index-Dsx7IiYR.css",
+    "web/dist/assets/index-8noxZf_6.js",
+    "web/dist/assets",
+    "web/src/shared/types.ts",
+    "web/src/shared",
+    "functions/node_modules/@modelcontextprotocol/sdk/node_modules/jose/README.md",
+    "web/dist/icons.svg",
+    "web/dist/favicon.svg",
     "dummy.jpg",
-    "functions/src/createAhmedabadHotspot.ts",
-    "web/checkHotspots.js",
-    "check_report.js",
-    "functions/check_bucket.js",
     "functions/node_modules/superstatic/node_modules/commander/Readme.md",
-    "functions/check_report.js",
-    "e2e_test.py",
-    "functions/test_prod.js",
-    "test_prod.js",
     "functions/node_modules/firebase-tools/prompts/FIREBASE_FUNCTIONS.md",
     "functions/node_modules/firebase-tools/prompts/FIREBASE.md",
     "functions/node_modules/firebase-tools/templates/firebase-studio-export/workflows/cleanup.md",
@@ -214,15 +217,12 @@
     "functions/node_modules/@google-cloud/pubsub/node_modules/@grpc/proto-loader/README.md",
     "functions/node_modules/tar/node_modules/yallist/LICENSE.md",
     "functions/node_modules/@google-cloud/pubsub/node_modules/google-logging-utils/README.md",
-    "functions/node_modules/firebase-tools/node_modules/argparse/README.md",
     "functions/node_modules/istanbul-reports/lib/html-spa/assets/sort-arrow-sprite.png",
     "functions/node_modules/istanbul-reports/lib/html/assets/sort-arrow-sprite.png",
     "functions/node_modules/istanbul-reports/lib/html/assets/favicon.png",
     "functions/node_modules/@jest/reporters/assets/jest_logo.png",
     "web/src/assets/react.svg",
     "web/src/assets/vite.svg",
-    "web/src/assets/hero.png",
-    "web/dist/assets/vite-BF8QNONU.svg",
-    "web/dist/assets/react-CHdo91hT.svg"
+    "web/src/assets/hero.png"
   ]
 }

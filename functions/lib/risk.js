@@ -47,7 +47,12 @@ function calculateHotspotRisk(hotspot, reports) {
     // If the hotspot has been open for > 24 hours, add 10 points
     let durationScore = 0;
     if (hotspot.firstSeenAt) {
-        const hoursOpen = (Date.now() - hotspot.firstSeenAt.getTime()) / (1000 * 60 * 60);
+        const firstSeenMs = typeof hotspot.firstSeenAt.toMillis === 'function'
+            ? hotspot.firstSeenAt.toMillis()
+            : typeof hotspot.firstSeenAt.getTime === 'function'
+                ? hotspot.firstSeenAt.getTime()
+                : hotspot.firstSeenAt.toDate ? hotspot.firstSeenAt.toDate().getTime() : Date.now();
+        const hoursOpen = (Date.now() - firstSeenMs) / (1000 * 60 * 60);
         if (hoursOpen > 24) {
             durationScore = 10;
             drivers.push('Unresolved for over 24 hours');

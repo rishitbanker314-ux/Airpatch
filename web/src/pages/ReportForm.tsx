@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { submitReport } from '../services/reports';
 import { useAuth } from '../services/authService';
 import type { PollutionCategory } from '../shared/types';
-import { MapPin, UploadCloud, AlertCircle, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2 } from 'lucide-react';
 
 export function ReportForm() {
   const navigate = useNavigate();
@@ -84,122 +84,214 @@ export function ReportForm() {
     }
   };
 
+  const getCategoryIcon = (cat: PollutionCategory) => {
+    switch (cat) {
+      case 'unpicked_waste': return 'delete';
+      case 'construction_dust': return 'construction';
+      case 'industrial_smoke': return 'factory';
+      case 'stagnant_water': return 'water_drop';
+      default: return 'report';
+    }
+  };
+
+  const getCategoryColorClass = (cat: PollutionCategory) => {
+    switch (cat) {
+      case 'unpicked_waste': return 'text-aqi-moderate';
+      case 'construction_dust': return 'text-aqi-moderate';
+      case 'industrial_smoke': return 'text-outline';
+      case 'stagnant_water': return 'text-map-water';
+      default: return 'text-primary';
+    }
+  };
+
+  const getCategoryLabel = (cat: PollutionCategory) => {
+    return cat.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
   return (
-    <div className="min-h-full bg-background py-8 px-4 sm:px-6 lg:px-8 bg-[url('https://maps.googleapis.com/maps/api/staticmap?center=28.6139,77.2090&zoom=11&size=1000x1000&maptype=roadmap&style=feature:water|element:geometry|color:0xBEE3F8&key=dummy')] bg-cover bg-center">
-      <div className="max-w-md mx-auto glass-panel p-8">
-        <h2 className="text-2xl font-bold text-on-surface mb-6">Report Pollution</h2>
-        
+    <div className="relative min-h-screen bg-background text-on-surface flex items-center justify-center p-4 md:p-8 overflow-hidden">
+      {/* Atmospheric Background */}
+      <div className="absolute inset-0 z-0 opacity-40 grayscale-[20%]">
+        <img 
+          className="w-full h-full object-cover" 
+          alt="Map Background" 
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbB2qnTekoXF09Pz9J0IDntHJXvZ8RebRMecMmuL7EuYeFTzdwZtaoOjs-nkAW42Qax0HgrxwdJZlBzRj0A5bUjC1JZGBgBukKu3Q2foMJiJCv269PrxACjWfnuO82a1Hsr98Z7PfQLRv2GM6Ejbq2D3bKDPZA_uwUWLORJEsgxwJZK37eRUUf82wgQe9oVPn2rr9tHvyJXFJv0uMClpqFNtuK2cxv1RJ9s9sRs_gwBd_xAiFUxK7pa0UqBCzimzLe0JIxk3FJhQ"
+        />
+      </div>
+
+      {/* Focus Overlay */}
+      <div className="absolute inset-0 z-10 bg-on-background/10 backdrop-blur-[2px]"></div>
+
+      {/* Main Form Container */}
+      <main className="glass-panel w-full max-w-2xl rounded-2xl flex flex-col relative z-20 shadow-2xl max-h-[90vh]">
+        {/* Header */}
+        <header className="flex items-center justify-between p-6 border-b border-white/40">
+          <div className="flex flex-col">
+            <h1 className="text-2xl md:text-3xl font-bold text-primary">New Report</h1>
+            <p className="text-sm md:text-base text-on-surface-variant mt-1">Help verify local air quality</p>
+          </div>
+          <button 
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="p-2 rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant flex items-center justify-center"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </header>
+
         {error && (
-          <div className="mb-4 bg-error-container p-4 rounded-md flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-error mt-0.5" />
-            <p className="text-sm text-on-error-container">{error}</p>
+          <div className="m-6 mb-0 bg-error-container p-4 rounded-xl flex items-start gap-3 border border-error/20">
+            <AlertCircle className="w-5 h-5 text-error mt-0.5 shrink-0" />
+            <p className="text-sm font-medium text-on-error-container">{error}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-on-surface-variant mb-2">Evidence Photo</label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-outline border-dashed rounded-md relative hover:bg-black/5 transition-colors cursor-pointer group">
-              <div className="space-y-1 text-center w-full">
-                {image ? (
-                  <div className="flex flex-col items-center">
-                    <img src={URL.createObjectURL(image)} alt="Preview" className="h-32 object-contain mb-3 rounded-md shadow-sm" />
+        <form onSubmit={handleSubmit} className="p-6 space-y-8 overflow-y-auto custom-scrollbar flex-1">
+          {/* Step 1: Photo Upload */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>photo_camera</span>
+              <h2 className="text-lg font-bold">Capture Evidence</h2>
+            </div>
+            <label className="glass-input rounded-xl border-2 border-dashed border-outline-variant hover:border-primary transition-colors cursor-pointer relative overflow-hidden h-48 flex flex-col items-center justify-center group block">
+              <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+              {image ? (
+                <div className="w-full h-full p-2">
+                  <img src={URL.createObjectURL(image)} alt="Preview" className="w-full h-full object-contain rounded-lg" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
+                    <span className="material-symbols-outlined text-3xl mb-1">edit</span>
+                    <span className="text-sm font-medium">Change Photo</span>
                   </div>
-                ) : (
-                  <UploadCloud className="mx-auto h-12 w-12 text-outline mb-2 group-hover:text-primary transition-colors" />
-                )}
-                <div className="flex text-sm text-on-surface justify-center w-full">
-                  <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-primary hover:text-primary-container focus-within:outline-none">
-                    <span>{image ? 'Change file' : 'Upload a file'}</span>
-                    <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageChange} />
-                  </label>
                 </div>
-                {image && <p className="text-xs text-on-surface-variant mt-2 truncate max-w-xs mx-auto">{image.name}</p>}
+              ) : (
+                <div className="text-center group-hover:scale-105 transition-transform duration-300">
+                  <span className="material-symbols-outlined text-4xl text-outline mb-2">cloud_upload</span>
+                  <p className="text-sm font-bold text-on-surface">Tap to capture or upload</p>
+                  <p className="text-xs font-bold text-on-surface-variant mt-1 tracking-wider">JPG, PNG up to 10MB</p>
+                </div>
+              )}
+            </label>
+          </section>
+
+          {/* Step 2: Category Selection */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>category</span>
+              <h2 className="text-lg font-bold">Pollution Type</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              {(['unpicked_waste', 'construction_dust', 'industrial_smoke', 'stagnant_water'] as PollutionCategory[]).map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategory(cat)}
+                  className={`glass-panel p-4 rounded-xl flex flex-col items-center justify-center gap-2 border-2 transition-all hover:bg-primary-container/20 ${category === cat ? 'border-primary bg-primary-container/10 shadow-md' : 'border-transparent'}`}
+                >
+                  <span className={`material-symbols-outlined text-3xl ${category === cat ? 'text-primary' : getCategoryColorClass(cat)}`}>
+                    {getCategoryIcon(cat)}
+                  </span>
+                  <span className={`text-sm font-bold text-center ${category === cat ? 'text-primary' : 'text-on-surface'}`}>
+                    {getCategoryLabel(cat)}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Step 3: Location & Note */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Location Capture */}
+            <section className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
+                  <h2 className="text-lg font-bold">Location</h2>
+                </div>
+                <button 
+                  type="button"
+                  onClick={handleGetLocation}
+                  disabled={isLocating}
+                  className="text-xs font-bold text-primary hover:bg-primary/10 px-2 py-1 rounded-md transition-colors flex items-center gap-1"
+                >
+                  {isLocating ? <Loader2 className="w-3 h-3 animate-spin" /> : <span className="material-symbols-outlined text-[14px]">gps_fixed</span>}
+                  Detect
+                </button>
               </div>
-            </div>
-          </div>
+              <div className="h-32 rounded-xl overflow-hidden relative glass-input border border-outline-variant/30 group">
+                <img 
+                  className="w-full h-full object-cover opacity-80" 
+                  alt="Location Preview" 
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGciZVkAxVMZ4U-5NmaY-x7dsnvp1FB_hL8-Gfn3bOjCZ51CHSMleEel12lZvyH19f4P8Tlc9tMDSCeYll2YfXuV7oD8U8FFCW2LbQv0iBw-yr5UXje7QPrH4IzljPZPhuXRKOzA_Bqq9Mtd-sdLCGG5N2t_XP9fA38s3qbrH4blB827BXUTCXH8-EZHJphWUmFDhutZf9mCB9P5u7CgTxweBZ4mW6s03aBLLXe_u-dvkvQ66FBiA9VzC7O-Jrli1h2DvhQjm52A"
+                />
+                <div className="absolute inset-0 bg-black/5 flex flex-col items-center justify-center pointer-events-none p-2">
+                   <div className="flex gap-2 w-full max-w-[200px] pointer-events-auto">
+                     <input type="number" step="any" placeholder="Lat" value={lat} onChange={(e) => setLat(e.target.value)} className="w-full bg-surface-glass backdrop-blur-md rounded-md border border-white/50 px-2 py-1 text-xs text-center outline-none focus:border-primary font-bold shadow-sm" />
+                     <input type="number" step="any" placeholder="Lng" value={lng} onChange={(e) => setLng(e.target.value)} className="w-full bg-surface-glass backdrop-blur-md rounded-md border border-white/50 px-2 py-1 text-xs text-center outline-none focus:border-primary font-bold shadow-sm" />
+                   </div>
+                </div>
+              </div>
+            </section>
 
-          {/* Category */}
-          <div>
-            <label htmlFor="category" className="block text-sm font-medium text-on-surface-variant mb-1">Category</label>
-            <select
-              id="category"
-              value={category}
-              onChange={(e) => setCategory(e.target.value as PollutionCategory)}
-              className="glass-input block w-full"
-            >
-
-              <option value="construction_dust">Construction Dust</option>
-              <option value="industrial_smoke">Industrial Smoke</option>
-              <option value="unpicked_waste">Unpicked Up Waste</option>
-              <option value="stagnant_water">Stagnant Water</option>
-            </select>
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-medium text-on-surface-variant mb-1">Location</label>
-            <div className="flex gap-2 mb-3">
-              <input
-                type="number"
-                step="any"
-                placeholder="Lat"
-                value={lat}
-                onChange={(e) => setLat(e.target.value)}
-                className="glass-input flex-1"
-              />
-              <input
-                type="number"
-                step="any"
-                placeholder="Lng"
-                value={lng}
-                onChange={(e) => setLng(e.target.value)}
-                className="glass-input flex-1"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleGetLocation}
-              disabled={isLocating}
-              className="w-full inline-flex justify-center items-center px-4 py-2 border border-outline shadow-sm text-sm font-medium rounded-md text-on-surface bg-white/50 hover:bg-white/80 focus:outline-none transition-colors"
-            >
-              {isLocating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <MapPin className="w-4 h-4 mr-2" />}
-              Use Current Location
-            </button>
-          </div>
-
-          {/* Note */}
-          <div>
-            <label htmlFor="note" className="block text-sm font-medium text-on-surface-variant mb-1">Note (Optional)</label>
-            <div className="mt-1">
+            {/* Note */}
+            <section className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>description</span>
+                <h2 className="text-lg font-bold">Details (Optional)</h2>
+              </div>
               <textarea
-                id="note"
-                rows={3}
+                rows={4}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="glass-input w-full block"
-                placeholder="Additional details..."
+                className="glass-input w-full h-32 rounded-xl border border-outline-variant/30 p-4 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
+                placeholder="Provide any additional context or details about the issue..."
               />
-            </div>
+            </section>
           </div>
 
-          <button
+          {/* Gamification */}
+          <div className="bg-secondary-container/30 border border-secondary/20 rounded-xl p-4 flex items-center gap-4">
+            <div className="bg-secondary/10 p-2 rounded-full shrink-0">
+              <span className="material-symbols-outlined text-secondary" style={{ fontVariationSettings: "'FILL' 1" }}>military_tech</span>
+            </div>
+            <div>
+              <p className="text-sm font-bold text-on-secondary-fixed-variant">+10 Points</p>
+              <p className="text-[13px] text-on-surface-variant mt-0.5">For verified {getCategoryLabel(category).toLowerCase()} reports</p>
+            </div>
+          </div>
+          
+          {/* AI Verification (Only shows when submitting) */}
+          {isSubmitting && (
+            <div className="h-32 glass-panel rounded-xl p-4 flex flex-col justify-center items-center relative overflow-hidden border-primary/30">
+              <div className="scanning-bar"></div>
+              <span className="material-symbols-outlined text-primary text-3xl mb-2 animate-pulse">model_training</span>
+              <p className="text-sm font-bold text-on-surface text-center">Gemini is verifying your report...</p>
+            </div>
+          )}
+        </form>
+
+        {/* Footer / Submit */}
+        <footer className="p-6 border-t border-white/40 bg-surface-glass/80 backdrop-blur-md rounded-b-2xl flex justify-end gap-4 shrink-0">
+          <button 
+            type="button" 
+            onClick={() => navigate('/dashboard')}
+            className="px-6 py-2.5 rounded-lg text-sm font-bold text-on-surface-variant hover:bg-surface-container-highest transition-colors"
+          >
+            Cancel
+          </button>
+          <button 
             type="submit"
             disabled={isSubmitting}
-            className="w-full btn-primary flex justify-center disabled:opacity-50 mt-4"
+            onClick={handleSubmit}
+            className="px-8 py-2.5 rounded-lg bg-primary text-white text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] transition-all relative overflow-hidden disabled:opacity-70 disabled:hover:scale-100"
           >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                Submitting...
-              </>
-            ) : (
-              'Submit Report'
-            )}
+            <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent"></div>
+            <span className="relative z-10 flex items-center gap-2">
+               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+               Submit Report
+            </span>
           </button>
-        </form>
-      </div>
+        </footer>
+      </main>
     </div>
   );
 }

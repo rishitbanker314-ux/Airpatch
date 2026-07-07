@@ -79,7 +79,7 @@ describe('Hotspot Engine Tests', () => {
                     callback({
                         id: 'hotspot-1',
                         data: () => ({
-                            category: 'waste_burning_smoke',
+                            category: 'unpicked_waste',
                             center: { lat: 40.7128, lng: -74.0060 }
                         })
                     });
@@ -102,12 +102,12 @@ describe('Hotspot Engine Tests', () => {
                 return {};
             });
             const report = {
-                category: 'waste_burning_smoke',
+                category: 'unpicked_waste',
                 location: { lat: 40.7130, lng: -74.0065 }, // Very close
                 createdAt: new Date()
             };
             await (0, hotspots_1.assignReportToHotspot)('report-1', report);
-            expect(mockWhere).toHaveBeenCalledWith('category', '==', 'waste_burning_smoke');
+            expect(mockWhere).toHaveBeenCalledWith('category', '==', 'unpicked_waste');
             expect(mockUpdate).toHaveBeenCalledWith({ hotspotId: 'hotspot-1' });
         });
     });

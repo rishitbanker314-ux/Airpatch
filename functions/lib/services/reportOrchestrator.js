@@ -106,16 +106,25 @@ async function processReportCreated(reportId, data) {
     if (geminiResult.status === 'fulfilled') {
         updates.aiStatus = 'completed';
         updates.aiVerification = geminiResult.value;
+        const isSupportedAirPollution = geminiResult.value.isPollutionEvent && geminiResult.value.predictedCategory !== 'none';
+        // Set global status based on verification
+        if (isSupportedAirPollution) {
+            updates.status = 'verified';
+        }
+        else {
+            updates.status = 'rejected';
+        }
         // Gamification: Award 10 points if it is a verified pollution event
-        if (geminiResult.value.isPollutionEvent && data.createdBy) {
+        if (isSupportedAirPollution && data.createdBy && data.createdBy !== 'anonymous') {
             const userRef = db.collection('users').doc(data.createdBy);
-            await userRef.update({
+            await userRef.set({
                 points: admin.firestore.FieldValue.increment(10)
-            }).catch(err => console.error('[Orchestrator] Failed to award points:', err));
+            }, { merge: true }).catch(err => console.error('[Orchestrator] Failed to award points:', err));
         }
     }
     else {
         updates.aiStatus = 'failed';
+        updates.status = 'failed'; // Transition to failed so frontend does not get stuck
     }
     // Process Context Results
     if (weatherResult.status === 'fulfilled' || aqiResult.status === 'fulfilled') {

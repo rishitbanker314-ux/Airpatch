@@ -51,7 +51,7 @@ exports.assignReportTrigger = functions.firestore
     // Only process when AI verification completes
     if (before.aiStatus !== 'completed' && after.aiStatus === 'completed') {
         const hasValidLocation = after.location && typeof after.location.lat === 'number' && typeof after.location.lng === 'number';
-        const supportedCategories = ['waste_burning_smoke', 'construction_dust', 'industrial_smoke'];
+        const supportedCategories = ['construction_dust', 'industrial_smoke', 'unpicked_waste', 'stagnant_water'];
         const hasSupportedCategory = supportedCategories.includes(after.category);
         const isPollution = ((_a = after.aiVerification) === null || _a === void 0 ? void 0 : _a.isPollutionEvent) === true;
         const isNotNone = ((_b = after.aiVerification) === null || _b === void 0 ? void 0 : _b.predictedCategory) !== 'none';

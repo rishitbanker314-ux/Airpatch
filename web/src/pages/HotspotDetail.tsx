@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getHotspotDetails } from '../services/hotspots';
 import type { Hotspot, Report } from '../shared/types';
 import { ResolutionPanel } from '../components/ResolutionPanel';
-import { ArrowLeft, CheckCircle, Share, Wind, Cloud, MapPin, Activity, Navigation, AlertTriangle, Layers, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Wind, Cloud, MapPin, Activity, Navigation, AlertTriangle, Layers, Plus, Minus } from 'lucide-react';
 
 export function HotspotDetail() {
   const { id } = useParams();
@@ -81,21 +81,6 @@ export function HotspotDetail() {
           <p className="text-base text-on-surface-variant mt-1">
              Pollution anomaly detected at {hotspot.center.lat.toFixed(4)}, {hotspot.center.lng.toFixed(4)}.
           </p>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 border border-outline-variant rounded-xl text-on-surface text-sm font-medium hover:bg-surface-container-high transition-colors">
-            <Share className="w-5 h-5" /> Export
-          </button>
-          {hotspot.status !== 'resolved' && (
-            <button 
-              onClick={() => {
-                document.getElementById('resolution-panel')?.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="flex items-center gap-2 px-8 py-3 bg-primary text-on-primary rounded-xl text-sm font-bold shadow-lg hover:shadow-primary/20 active:scale-95 transition-all">
-              <CheckCircle className="w-5 h-5" fill="currentColor" stroke="none" /> Mark as Resolved
-            </button>
-          )}
         </div>
       </div>
 

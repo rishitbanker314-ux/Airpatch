@@ -133,7 +133,7 @@ export function Profile() {
           </div>
           <h3 className="text-xs text-outline uppercase tracking-wider font-bold">Community Assists</h3>
           <div className="flex items-center justify-between mt-2">
-            <span className="font-headline text-3xl font-bold">1.2k</span>
+            <span className="font-headline text-3xl font-bold">0</span>
             <span className="text-on-surface-variant text-sm font-semibold">Stable</span>
           </div>
         </div>
@@ -156,47 +156,8 @@ export function Profile() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        {/* Achievement Gallery */}
-        <div className="lg:col-span-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-headline text-xl font-bold text-on-surface">Achievement Gallery</h2>
-            <button className="text-primary text-sm font-bold hover:underline">View All</button>
-          </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {/* Earned Badge 1 */}
-            <div className="bg-surface-bright border border-white/50 p-4 rounded-[24px] text-center relative overflow-hidden group hover:shadow-md transition-shadow">
-              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="w-16 h-16 mx-auto bg-primary-container/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-primary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-              </div>
-              <h4 className="text-sm font-bold">Early Adopter</h4>
-              <p className="text-xs text-on-surface-variant mt-1">Joined Year 1</p>
-            </div>
-            
-            {/* Earned Badge 2 */}
-            <div className="bg-surface-bright border border-white/50 p-4 rounded-[24px] text-center relative overflow-hidden group hover:shadow-md transition-shadow">
-              <div className="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="w-16 h-16 mx-auto bg-secondary-container/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-secondary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>forest</span>
-              </div>
-              <h4 className="text-sm font-bold">Reforester</h4>
-              <p className="text-xs text-on-surface-variant mt-1">100 reports fixed</p>
-            </div>
-            
-            {/* Locked Badge */}
-            <div className="bg-surface-container-low border border-dashed border-outline-variant p-4 rounded-[24px] text-center grayscale opacity-60">
-              <div className="w-16 h-16 mx-auto bg-outline-variant/20 rounded-full flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-outline text-[32px]">lock</span>
-              </div>
-              <h4 className="text-sm font-bold">Air Oracle</h4>
-              <p className="text-xs text-on-surface-variant mt-1">Predictive analysis</p>
-            </div>
-          </div>
-        </div>
-        
         {/* Activity Ledger */}
-        <div className="lg:col-span-6 space-y-6">
+        <div className="lg:col-span-12 space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="font-headline text-xl font-bold text-on-surface">Recent Reports</h2>
           </div>

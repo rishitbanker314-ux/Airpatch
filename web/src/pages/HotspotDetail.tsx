@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { getHotspotDetails } from '../services/hotspots';
 import type { Hotspot, Report } from '../shared/types';
 import { ResolutionPanel } from '../components/ResolutionPanel';
-import { ArrowLeft, CheckCircle, Wind, Cloud, MapPin, Activity, Navigation, AlertTriangle, Layers, Plus, Minus } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Wind, Cloud, Activity, Navigation, AlertTriangle } from 'lucide-react';
 
 export function HotspotDetail() {
   const { id } = useParams();

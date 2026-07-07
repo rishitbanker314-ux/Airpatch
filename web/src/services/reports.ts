@@ -100,9 +100,8 @@ export const subscribeToUserReports = (userId: string, callback: (reports: Repor
   });
 };
 
-import { getDocs } from 'firebase/firestore';
 
-export const getNetworkTrend = async (): Promise<number[]> => {
+export const subscribeToNetworkTrend = (callback: (buckets: number[]) => void): (() => void) => {
   const reportsRef = collection(db, 'reports');
   const time24hAgo = new Date();
   time24hAgo.setHours(time24hAgo.getHours() - 24);
@@ -113,28 +112,31 @@ export const getNetworkTrend = async (): Promise<number[]> => {
     orderBy('createdAt', 'asc')
   );
   
-  const snapshot = await getDocs(q);
-  const reports = snapshot.docs.map(doc => {
-    const data = doc.data();
-    return {
-      createdAt: parseDate(data.createdAt),
-      aqi: data.context?.air?.aqi || 0
-    };
+  return onSnapshot(q, (snapshot) => {
+    const reports = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        createdAt: parseDate(data.createdAt),
+        aqi: data.context?.air?.aqi || 0
+      };
+    });
+    
+    // We want 9 buckets for the 24 hours
+    const buckets = new Array(9).fill(0);
+    const bucketDurationMs = (24 * 60 * 60 * 1000) / 9;
+    
+    reports.forEach(report => {
+      const timeDiffMs = report.createdAt.getTime() - time24hAgo.getTime();
+      let bucketIndex = Math.floor(timeDiffMs / bucketDurationMs);
+      if (bucketIndex >= 9) bucketIndex = 8;
+      if (bucketIndex >= 0) {
+        buckets[bucketIndex] = Math.max(buckets[bucketIndex], report.aqi);
+      }
+    });
+    
+    callback(buckets);
+  }, (error) => {
+    console.error("Error listening to network trend:", error);
+    callback(new Array(9).fill(0));
   });
-  
-  // We want 9 buckets for the 24 hours
-  const buckets = new Array(9).fill(0);
-  const bucketDurationMs = (24 * 60 * 60 * 1000) / 9;
-  
-  reports.forEach(report => {
-    const timeDiffMs = report.createdAt.getTime() - time24hAgo.getTime();
-    let bucketIndex = Math.floor(timeDiffMs / bucketDurationMs);
-    if (bucketIndex >= 9) bucketIndex = 8;
-    if (bucketIndex >= 0) {
-      // Use max AQI in that bucket, or average? Max makes sense for alerts.
-      buckets[bucketIndex] = Math.max(buckets[bucketIndex], report.aqi);
-    }
-  });
-  
-  return buckets;
 };

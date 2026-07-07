@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHotspots } from '../services/hotspots';
-import { getNetworkTrend } from '../services/reports';
+import { subscribeToNetworkTrend } from '../services/reports';
 import type { Hotspot, PollutionCategory } from '../shared/types';
 import { Loader2 } from 'lucide-react';
 
@@ -16,23 +16,27 @@ export function Dashboard() {
   const [activeFilter, setActiveFilter] = useState<string>('All Reports');
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchHotspots = async () => {
       try {
-        const [hotspotsData, trendBuckets] = await Promise.all([
-          getHotspots(),
-          getNetworkTrend()
-        ]);
+        const hotspotsData = await getHotspots();
         setHotspots(hotspotsData);
-        setTrendData(trendBuckets);
-        setPeakAqi(Math.max(...trendBuckets, 0));
       } catch (err) {
-        console.error('Failed to fetch dashboard data:', err);
+        console.error('Failed to fetch hotspots:', err);
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
-    fetchDashboardData();
+    fetchHotspots();
+    
+    const unsubscribeTrend = subscribeToNetworkTrend((trendBuckets) => {
+      setTrendData(trendBuckets);
+      setPeakAqi(Math.max(...trendBuckets, 0));
+    });
+
+    return () => {
+      unsubscribeTrend();
+    };
   }, []);
 
   if (loading) {

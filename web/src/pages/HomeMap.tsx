@@ -1,11 +1,9 @@
-
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { getHotspots } from '../services/hotspots';
 import type { Hotspot, PollutionCategory } from '../shared/types';
-import { AlertTriangle, Factory, Trash2, Droplets } from 'lucide-react';
+
 
 export function HomeMap() {
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
@@ -31,55 +29,148 @@ export function HomeMap() {
 
   const filteredHotspots = hotspots.filter(h => filter === 'all' || h.category === filter);
 
+  // Helper for marker color
+  const getMarkerColorClass = (band?: string) => {
+    switch(band) {
+      case 'low': return 'text-aqi-good border-aqi-good shadow-[0_4px_24px_rgba(16,185,129,0.5)]';
+      case 'medium': return 'text-aqi-moderate border-aqi-moderate shadow-[0_4px_24px_rgba(245,158,11,0.5)]';
+      case 'high': return 'text-orange-500 border-orange-500 shadow-[0_4px_24px_rgba(249,115,22,0.5)]';
+      case 'critical': return 'text-aqi-critical border-aqi-critical shadow-[0_4px_24px_rgba(124,58,237,0.5)]';
+      default: return 'text-gray-500 border-gray-500';
+    }
+  };
+
+  const getMarkerBgClass = (band?: string) => {
+    switch(band) {
+      case 'low': return 'bg-aqi-good';
+      case 'medium': return 'bg-aqi-moderate';
+      case 'high': return 'bg-orange-500';
+      case 'critical': return 'bg-aqi-critical';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getMarkerIcon = (category: PollutionCategory) => {
+    switch(category) {
+      case 'construction_dust': return 'construction';
+      case 'industrial_smoke': return 'factory';
+      case 'unpicked_waste': return 'delete';
+      case 'stagnant_water': return 'water_drop';
+      default: return 'cloud';
+    }
+  };
+
+  const getTooltipText = (h: Hotspot) => {
+    const band = h.risk?.riskBand?.toUpperCase() || 'UNKNOWN';
+    const cat = h.category.replace(/_/g, ' ');
+    return `${cat}: ${band} Risk`;
+  };
+
   return (
-    <div className="relative h-full w-full flex flex-col">
-      {/* Overlay Filter UI */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 glass-panel p-2 flex gap-2 overflow-x-auto w-[90%] md:w-auto snap-x custom-scrollbar">
+    <div className="relative h-full w-full flex flex-col font-sans">
+      {/* LAYER 3: Floating Canvas Content (Filters, Overlays, FAB) */}
+      {/* Map Filters (Top Center) */}
+      <div className="absolute z-30 top-20 md:top-[40px] left-1/2 -translate-x-1/2 flex items-center bg-surface-glass backdrop-blur-xl border border-white/40 shadow-sm rounded-full p-1 pointer-events-auto overflow-x-auto max-w-[95vw]">
         <button 
           onClick={() => setFilter('all')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap snap-center ${filter === 'all' ? 'bg-primary text-on-primary shadow-md' : 'text-on-surface hover:bg-white/40'}`}
+          className={`px-5 py-2 rounded-full font-bold text-sm transition-all whitespace-nowrap ${filter === 'all' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
         >
           All
         </button>
-
+        <button 
+          onClick={() => setFilter('unpicked_waste')}
+          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap ${filter === 'unpicked_waste' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
+        >
+          <span className="material-symbols-outlined text-[18px]">delete</span>
+          Waste
+        </button>
         <button 
           onClick={() => setFilter('construction_dust')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap snap-center ${filter === 'construction_dust' ? 'bg-aqi-moderate text-white shadow-md' : 'text-on-surface hover:bg-white/40'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap ${filter === 'construction_dust' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
         >
-          <AlertTriangle className="w-4 h-4" /> Construction
+          <span className="material-symbols-outlined text-[18px]">construction</span>
+          Construction
         </button>
         <button 
           onClick={() => setFilter('industrial_smoke')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap snap-center ${filter === 'industrial_smoke' ? 'bg-aqi-critical text-white shadow-md' : 'text-on-surface hover:bg-white/40'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap hidden lg:flex ${filter === 'industrial_smoke' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
         >
-          <Factory className="w-4 h-4" /> Industrial
-        </button>
-        <button 
-          onClick={() => setFilter('unpicked_waste')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap snap-center ${filter === 'unpicked_waste' ? 'bg-orange-600 text-white shadow-md' : 'text-on-surface hover:bg-white/40'}`}
-        >
-          <Trash2 className="w-4 h-4" /> Unpicked Waste
+          <span className="material-symbols-outlined text-[18px]">factory</span>
+          Industrial
         </button>
         <button 
           onClick={() => setFilter('stagnant_water')}
-          className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap snap-center ${filter === 'stagnant_water' ? 'bg-blue-600 text-white shadow-md' : 'text-on-surface hover:bg-white/40'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap hidden md:flex ${filter === 'stagnant_water' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
         >
-          <Droplets className="w-4 h-4" /> Stagnant Water
+          <span className="material-symbols-outlined text-[18px]">water_drop</span>
+          Water
         </button>
       </div>
 
-      <div className="flex-1 w-full relative">
-        {loading && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-gray-50/50 dark:bg-gray-900/50">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">Loading hotspots...</div>
-          </div>
-        )}
-        
-        {!loading && hotspots.length === 0 && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-            <div className="bg-white/90 dark:bg-gray-800/90 p-4 rounded-lg shadow-lg text-gray-600 dark:text-gray-300">
-              No hotspots found.
+      {/* Floating Risk Overlay (Right side on Desktop) */}
+      <div className="hidden xl:flex absolute z-30 top-[40px] right-[40px] w-80 flex-col gap-4 pointer-events-auto">
+        <div className="bg-surface-glass backdrop-blur-xl border border-white/40 shadow-lg rounded-2xl p-5 relative overflow-hidden">
+          {/* Subtle gradient background purely for aesthetic depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[20px] font-bold text-on-surface">Active Hotspots</h2>
+              <span className="px-2 py-1 bg-error-container text-on-error-container font-mono text-xs rounded-md font-bold">
+                {filteredHotspots.length} Nearby
+              </span>
             </div>
+            
+            <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
+              {filteredHotspots.slice(0, 5).map(h => (
+                <div key={h.id} onClick={() => navigate(`/hotspot/${h.id}`)} className="flex items-start gap-3 p-3 bg-surface-container-lowest/50 rounded-xl border border-white/30 hover:bg-white/60 transition-colors cursor-pointer">
+                  <div className={`w-2 h-2 mt-2 rounded-full shrink-0 shadow-[0_0_8px_rgba(0,0,0,0.3)] ${getMarkerBgClass(h.risk?.riskBand)}`}></div>
+                  <div>
+                    <p className="text-sm font-bold text-on-surface capitalize">{h.category.replace(/_/g, ' ')}</p>
+                    <p className="text-[13px] text-on-surface-variant leading-tight mt-1">
+                      {h.activeReportCount} active reports detected in this zone.
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {filteredHotspots.length === 0 && (
+                <p className="text-sm text-on-surface-variant italic">No hotspots match the filter.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity Feed (Toast style, Bottom Center) */}
+      <div className="absolute z-30 bottom-[90px] md:bottom-[40px] left-1/2 -translate-x-1/2 w-[90%] max-w-md pointer-events-auto">
+        <div className="bg-surface-glass backdrop-blur-xl border border-white/50 shadow-lg rounded-full px-4 py-3 flex items-center justify-between gap-3 animate-pulse">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[18px]">campaign</span>
+            </div>
+            <p className="text-sm font-semibold text-on-surface line-clamp-1">
+              System active in New Delhi - <span className="text-secondary font-bold">All OK</span>
+            </p>
+          </div>
+          <button className="text-on-surface-variant hover:text-primary transition-colors">
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Floating Action Button (FAB) - Map Focus Action */}
+      <button 
+        onClick={() => setMapCenter({ lat: 28.6139, lng: 77.2090 })}
+        className="absolute z-40 bottom-24 right-4 md:bottom-[40px] md:right-[40px] w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_8px_24px_rgba(0,74,211,0.4)] flex items-center justify-center hover:scale-105 active:scale-95 transition-transform duration-300 pointer-events-auto border border-white/20"
+      >
+        <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>my_location</span>
+      </button>
+
+      {/* LAYER 0: Map Background Canvas */}
+      <div className="flex-1 w-full relative z-0">
+        {loading && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-surface/50 backdrop-blur-sm">
+            <div className="glass-panel p-4 rounded-lg font-bold">Loading hotspots...</div>
           </div>
         )}
         
@@ -90,33 +181,27 @@ export function HomeMap() {
           onCenterChanged={(ev) => setMapCenter(ev.detail.center)}
           disableDefaultUI={true}
         >
-          {!loading && filteredHotspots.map((hotspot) => {
-            const getBgColor = (band?: string) => {
-              switch(band) {
-                case 'low': return 'bg-green-500';
-                case 'medium': return 'bg-yellow-500';
-                case 'high': return 'bg-orange-500';
-                case 'critical': return 'bg-red-600';
-                default: return 'bg-gray-500';
-              }
-            };
-
-            // If there are multiple hotspots at the EXACT same location, they might overlap.
-            // For MVP, we can apply a tiny random offset or just rely on the number.
-            
-            return (
-              <AdvancedMarker
-                key={hotspot.id}
-                position={{ lat: hotspot.center.lat, lng: hotspot.center.lng }}
-                onClick={() => navigate(`/hotspot/${hotspot.id}`)}
-                title={hotspot.category.replace(/_/g, ' ')}
-              >
-                <div className={`w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center font-bold text-white text-xs ${getBgColor(hotspot.risk?.riskBand)} hover:scale-110 transition-transform cursor-pointer`}>
-                  {hotspot.activeReportCount}
+          {!loading && filteredHotspots.map((hotspot) => (
+            <AdvancedMarker
+              key={hotspot.id}
+              position={{ lat: hotspot.center.lat, lng: hotspot.center.lng }}
+              onClick={() => navigate(`/hotspot/${hotspot.id}`)}
+              title={hotspot.category.replace(/_/g, ' ')}
+            >
+              <div className="flex flex-col items-center group cursor-pointer hover:scale-105 transition-transform duration-300">
+                <div className={`w-12 h-12 bg-surface-container-lowest/90 backdrop-blur-md rounded-full flex items-center justify-center border-2 ${getMarkerColorClass(hotspot.risk?.riskBand)} ${hotspot.risk?.riskBand === 'critical' ? 'animate-pulse' : ''}`}>
+                  <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    {getMarkerIcon(hotspot.category)}
+                  </span>
                 </div>
-              </AdvancedMarker>
-            );
-          })}
+                <div className="mt-2 bg-surface-glass backdrop-blur-md px-3 py-1 rounded-full border border-white/40 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                  <span className="font-mono text-xs font-bold text-on-surface">
+                    {getTooltipText(hotspot)}
+                  </span>
+                </div>
+              </div>
+            </AdvancedMarker>
+          ))}
         </Map>
       </div>
     </div>

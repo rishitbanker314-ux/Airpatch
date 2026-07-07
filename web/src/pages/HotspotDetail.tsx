@@ -88,7 +88,11 @@ export function HotspotDetail() {
             <Share className="w-5 h-5" /> Export
           </button>
           {hotspot.status !== 'resolved' && (
-            <button className="flex items-center gap-2 px-8 py-3 bg-primary text-on-primary rounded-xl text-sm font-bold shadow-lg hover:shadow-primary/20 active:scale-95 transition-all">
+            <button 
+              onClick={() => {
+                document.getElementById('resolution-panel')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="flex items-center gap-2 px-8 py-3 bg-primary text-on-primary rounded-xl text-sm font-bold shadow-lg hover:shadow-primary/20 active:scale-95 transition-all">
               <CheckCircle className="w-5 h-5" fill="currentColor" stroke="none" /> Mark as Resolved
             </button>
           )}

@@ -47,6 +47,15 @@ export const submitResolution = async (
     });
   }
 
+  // Mark the hotspot as resolved
+  if (hotspotId) {
+    const hotspotRef = doc(db, 'hotspots', hotspotId);
+    await updateDoc(hotspotRef, {
+      status: 'resolved',
+      updatedAt: serverTimestamp(),
+    });
+  }
+
   return { success: true, resolutionId: resolutionRef.id };
 };
 

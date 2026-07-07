@@ -76,7 +76,7 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
   }
 
   return (
-    <div className="mb-6">
+    <div id="resolution-panel" className="mb-6 scroll-mt-24">
       {/* Display Resolutions if they exist */}
       {resolutions.length > 0 && (
         <div className="space-y-4 mb-6">

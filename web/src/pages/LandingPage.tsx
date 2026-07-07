@@ -146,7 +146,7 @@ export function LandingPage() {
             </Link>
 
             {/* Card 4: Impact Profile */}
-            <Link to="/dashboard" className="group glass-panel rounded-lg p-6 flex flex-col gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-white/80 relative overflow-hidden">
+            <Link to="/profile" className="group glass-panel rounded-lg p-6 flex flex-col gap-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-white/80 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary-fixed/30 rounded-bl-full transition-transform duration-500 group-hover:scale-110"></div>
               <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface mb-2 transition-colors group-hover:bg-on-surface group-hover:text-white">
                 <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: '"FILL" 1' }}>account_circle</span>

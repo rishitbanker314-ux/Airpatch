@@ -221,7 +221,7 @@ export function Dashboard() {
       {/* Main Layout: Grid + Sidebar */}
       <div className="flex flex-col-reverse xl:flex-row gap-6 flex-1">
         {/* Hotspot Grid */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-max max-h-[300px] overflow-y-auto pr-2 pb-4">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-max max-h-[600px] overflow-y-auto pr-2 pb-4">
           {filteredHotspots.length === 0 ? (
             <div className="col-span-full py-12 text-center text-on-surface-variant">
               No hotspots found for this filter.
@@ -299,8 +299,8 @@ export function Dashboard() {
         </div>
 
         {/* Right Sidebar: Analytics & Trends */}
-        <aside className="w-[240px] mx-auto xl:mx-0 flex flex-col gap-4 sticky top-20 h-fit z-10 shrink-0">
-          <div className="glass-card p-4 flex flex-col w-[240px] h-[240px] justify-between">
+        <aside className="w-full max-w-sm mx-auto xl:mx-0 xl:w-[320px] flex flex-col gap-4 sticky top-20 h-fit z-10">
+          <div className="glass-card p-5 flex flex-col h-auto">
             <div className="flex justify-between items-center mb-6 relative">
               <h3 className="text-lg font-bold text-on-surface">
                 {trendPeriod === '24h' ? '24h Network Trend' : trendPeriod === 'weekly' ? 'Weekly Trend' : 'Monthly Trend'}
@@ -340,7 +340,7 @@ export function Dashboard() {
             </div>
 
             {/* Pseudo-chart visualization */}
-            <div className="h-[80px] mt-2 mb-2 border-b border-outline-variant/30 pb-1 relative block w-full">
+            <div className="h-[120px] mt-4 mb-4 border-b border-outline-variant/30 pb-2 relative block w-full">
               {/* Y-axis labels */}
               <div className="absolute left-0 top-0 h-full flex flex-col justify-between text-[9px] text-outline font-mono font-bold opacity-50 -ml-1 py-1">
                 <span>150</span>

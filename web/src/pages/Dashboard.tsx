@@ -372,14 +372,20 @@ export function Dashboard() {
             </div>
 
             <div className="flex justify-between font-mono font-bold text-[10px] text-outline uppercase tracking-wider">
-              <span>00:00</span>
-              <span>12:00</span>
-              <span>Now</span>
+              {trendPeriod === '24h' ? (
+                <><span>24H AGO</span><span>12H AGO</span><span>NOW</span></>
+              ) : trendPeriod === 'weekly' ? (
+                <><span>7D AGO</span><span>3D AGO</span><span>NOW</span></>
+              ) : (
+                <><span>30D AGO</span><span>15D AGO</span><span>NOW</span></>
+              )}
             </div>
 
             <div className="mt-6 pt-4 border-t border-outline-variant/30 flex justify-between items-center">
               <div>
-                <span className="block font-mono font-bold text-[10px] text-outline uppercase mb-1">Peak AQI Today</span>
+                <span className="block font-mono font-bold text-[10px] text-outline uppercase mb-1">
+                  {trendPeriod === '24h' ? 'Peak AQI Today' : trendPeriod === 'weekly' ? 'Peak AQI (Week)' : 'Peak AQI (Month)'}
+                </span>
                 <span className={`text-xl font-bold ${peakAqi >= 150 ? 'text-aqi-critical' : peakAqi >= 100 ? 'text-aqi-moderate' : 'text-aqi-good'}`}>{Math.round(peakAqi)}</span>
               </div>
               <div className="text-right">

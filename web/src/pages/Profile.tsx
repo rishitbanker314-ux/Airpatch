@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Star, MapPin, Award, CheckCircle, Clock, XCircle, Shield } from 'lucide-react';
 import { useAuth } from '../services/authService';
 import { getUserReports } from '../services/reports';
 import type { Report } from '../shared/types';
@@ -43,176 +42,230 @@ export function Profile() {
   }
 
   const points = dbUser?.points || 0;
+  const verifiedCount = reports.filter(r => r.status === 'verified').length;
   
-  // Calculate Rank
-  let rankName = 'Novice';
-  let RankIcon = Shield;
-  let rankColor = 'text-gray-400';
-  let nextRankPoints = 10;
-  let progress = (points / 10) * 100;
-
-  if (points >= 100) {
-    rankName = 'Sentinel';
-    RankIcon = Award;
-    rankColor = 'text-yellow-400';
-    nextRankPoints = points;
-    progress = 100;
-  } else if (points >= 50) {
-    rankName = 'Eco Warrior';
-    RankIcon = Star;
-    rankColor = 'text-green-400';
-    nextRankPoints = 100;
-    progress = ((points - 50) / 50) * 100;
-  } else if (points >= 10) {
-    rankName = 'Active Citizen';
-    RankIcon = Activity;
-    rankColor = 'text-blue-400';
-    nextRankPoints = 50;
-    progress = ((points - 10) / 40) * 100;
-  }
+  // Calculate Progress towards next tier
+  const nextTierPoints = 14000; // Example target
+  const progressPercent = Math.min((points / nextTierPoints) * 100, 100);
 
   return (
-    <div className="h-full flex flex-col p-4 lg:p-10 max-w-5xl mx-auto space-y-6">
-      <header className="mb-6">
-        <h1 className="font-headline text-3xl font-bold text-on-surface">Your Profile</h1>
-        <p className="text-on-surface-variant">Manage your account and view your impact</p>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Left Column: User Info & Gamification */}
-        <div className="lg:col-span-1 space-y-6">
+    <div className="p-4 lg:p-10 max-w-[1440px] mx-auto space-y-10 lg:space-y-12 pb-32">
+      
+      {/* Profile Header Section */}
+      <section>
+        <div className="glass-panel p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden rounded-[32px]">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
           
-          {/* User Card */}
-          <div className="glass-card p-6 flex flex-col items-center text-center">
-            <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center mb-4 relative">
-              <span className="text-4xl font-bold text-primary">
-                {user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'}
-              </span>
-              <div className="absolute -bottom-2 -right-2 bg-surface-container-high rounded-full p-2 shadow-lg">
-                <RankIcon className={`w-6 h-6 ${rankColor}`} />
-              </div>
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-primary/20 flex items-center justify-center text-4xl text-primary font-bold">
+              {user?.photoURL ? (
+                <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                user?.displayName?.charAt(0) || user?.email?.charAt(0) || 'U'
+              )}
             </div>
-            <h2 className="text-xl font-bold text-on-surface">{user?.displayName || 'Anonymous'}</h2>
-            <p className="text-sm text-on-surface-variant mb-4">{user?.email}</p>
-            <div className="bg-primary/10 px-4 py-2 rounded-xl">
-              <span className="text-primary font-bold text-lg">{points} Points</span>
+            <div className="absolute -bottom-2 -right-2 bg-secondary text-white w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+              <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
             </div>
           </div>
-
-          {/* Gamification Card */}
-          <div className="glass-card p-6">
-            <h3 className="font-headline text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" /> Current Rank
-            </h3>
-            <div className="flex items-center justify-between mb-2">
-              <span className={`font-bold ${rankColor}`}>{rankName}</span>
-              <span className="text-xs text-on-surface-variant">
-                {points >= 100 ? 'Max Rank Reached!' : `${nextRankPoints - points} pts to next rank`}
-              </span>
+          
+          <div className="text-center md:text-left flex-1">
+            <h2 className="font-headline text-3xl font-semibold text-on-surface">{user?.displayName || 'Anonymous Steward'}</h2>
+            <p className="text-on-surface-variant flex items-center justify-center md:justify-start gap-1 mt-1 text-sm">
+              <span className="material-symbols-outlined text-primary text-[18px]">location_on</span> Global Contributor
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
+              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold">Top 1% Steward</span>
+              <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-semibold">Verified Contributor</span>
             </div>
-            
-            <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden mb-6">
+          </div>
+          
+          <div className="flex flex-col items-center md:items-end gap-1">
+            <span className="text-xs uppercase tracking-widest text-outline font-bold">Total Impact Points</span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-headline text-5xl font-bold text-primary">{points.toLocaleString()}</span>
+            </div>
+            <div className="w-48 h-2 bg-surface-container-high rounded-full overflow-hidden mt-2">
               <div 
-                className="h-full bg-primary transition-all duration-1000 ease-out" 
-                style={{ width: `${Math.min(progress, 100)}%` }}
+                className="h-full bg-primary rounded-full shadow-[0_0_12px_rgba(29,97,255,0.4)] transition-all duration-1000 ease-out" 
+                style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
+            <span className="text-xs text-on-surface-variant mt-1 font-medium">{Math.max(nextTierPoints - points, 0).toLocaleString()} points until Elite Tier</span>
+          </div>
+        </div>
+      </section>
 
-            <h4 className="text-sm font-bold text-on-surface-variant mb-3">Impact Stats</h4>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-surface-container p-3 rounded-xl">
-                <p className="text-xs text-on-surface-variant mb-1">Reports</p>
-                <p className="text-xl font-bold text-primary">{reports.length}</p>
+      {/* Metrics Grid (Bento Style) */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Metric 1 */}
+        <div className="bg-surface-bright border border-white/50 p-6 rounded-[24px] shadow-sm hover:scale-[1.02] transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary mb-4">
+            <span className="material-symbols-outlined text-[28px]">assignment_turned_in</span>
+          </div>
+          <h3 className="text-xs text-outline uppercase tracking-wider font-bold">Total Reports</h3>
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-headline text-3xl font-bold">{reports.length}</span>
+            <span className="text-secondary text-sm font-semibold flex items-center gap-1">
+              <span className="material-symbols-outlined text-[16px]">trending_up</span> 12%
+            </span>
+          </div>
+        </div>
+        
+        {/* Metric 2 */}
+        <div className="bg-surface-bright border border-white/50 p-6 rounded-[24px] shadow-sm hover:scale-[1.02] transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary mb-4">
+            <span className="material-symbols-outlined text-[28px]">eco</span>
+          </div>
+          <h3 className="text-xs text-outline uppercase tracking-wider font-bold">Sources Resolved</h3>
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-headline text-3xl font-bold">{verifiedCount}</span>
+            <span className="text-secondary text-sm font-semibold flex items-center gap-1">
+              <span className="material-symbols-outlined text-[16px]">trending_up</span> 8%
+            </span>
+          </div>
+        </div>
+        
+        {/* Metric 3 */}
+        <div className="bg-surface-bright border border-white/50 p-6 rounded-[24px] shadow-sm hover:scale-[1.02] transition-transform">
+          <div className="w-12 h-12 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary mb-4">
+            <span className="material-symbols-outlined text-[28px]">groups</span>
+          </div>
+          <h3 className="text-xs text-outline uppercase tracking-wider font-bold">Community Assists</h3>
+          <div className="flex items-center justify-between mt-2">
+            <span className="font-headline text-3xl font-bold">1.2k</span>
+            <span className="text-on-surface-variant text-sm font-semibold">Stable</span>
+          </div>
+        </div>
+        
+        {/* Metric 4 (Environmental Gauge) */}
+        <div className="bg-primary p-6 rounded-[24px] shadow-lg text-white flex flex-col justify-between overflow-hidden relative group">
+          <div className="absolute -right-4 -bottom-4 opacity-10 rotate-12 transition-transform group-hover:scale-110">
+            <span className="material-symbols-outlined text-[120px]">psychology</span>
+          </div>
+          <h3 className="text-xs opacity-80 uppercase tracking-wider font-bold relative z-10">Steward Health</h3>
+          <div className="relative z-10">
+            <div className="flex items-baseline gap-1 mt-2">
+              <span className="font-headline text-5xl font-bold">98</span>
+              <span className="font-headline text-2xl opacity-80">%</span>
+            </div>
+            <p className="text-sm mt-2 font-medium">Optimal Performance</p>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Achievement Gallery */}
+        <div className="lg:col-span-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-headline text-xl font-bold text-on-surface">Achievement Gallery</h2>
+            <button className="text-primary text-sm font-bold hover:underline">View All</button>
+          </div>
+          
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {/* Earned Badge 1 */}
+            <div className="bg-surface-bright border border-white/50 p-4 rounded-[24px] text-center relative overflow-hidden group hover:shadow-md transition-shadow">
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-16 h-16 mx-auto bg-primary-container/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-primary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
               </div>
-              <div className="bg-surface-container p-3 rounded-xl">
-                <p className="text-xs text-on-surface-variant mb-1">Verified</p>
-                <p className="text-xl font-bold text-green-400">
-                  {reports.filter(r => r.status === 'verified').length}
-                </p>
+              <h4 className="text-sm font-bold">Early Adopter</h4>
+              <p className="text-xs text-on-surface-variant mt-1">Joined Year 1</p>
+            </div>
+            
+            {/* Earned Badge 2 */}
+            <div className="bg-surface-bright border border-white/50 p-4 rounded-[24px] text-center relative overflow-hidden group hover:shadow-md transition-shadow">
+              <div className="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="w-16 h-16 mx-auto bg-secondary-container/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-secondary text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>forest</span>
               </div>
+              <h4 className="text-sm font-bold">Reforester</h4>
+              <p className="text-xs text-on-surface-variant mt-1">100 reports fixed</p>
+            </div>
+            
+            {/* Locked Badge */}
+            <div className="bg-surface-container-low border border-dashed border-outline-variant p-4 rounded-[24px] text-center grayscale opacity-60">
+              <div className="w-16 h-16 mx-auto bg-outline-variant/20 rounded-full flex items-center justify-center mb-3">
+                <span className="material-symbols-outlined text-outline text-[32px]">lock</span>
+              </div>
+              <h4 className="text-sm font-bold">Air Oracle</h4>
+              <p className="text-xs text-on-surface-variant mt-1">Predictive analysis</p>
             </div>
           </div>
-
         </div>
-
-        {/* Right Column: Report History */}
-        <div className="lg:col-span-2">
-          <div className="glass-card p-6 h-full min-h-[500px] flex flex-col">
-            <h3 className="font-headline text-xl font-bold text-on-surface mb-6 flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" /> Report History
-            </h3>
-
+        
+        {/* Activity Ledger */}
+        <div className="lg:col-span-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-headline text-xl font-bold text-on-surface">Recent Reports</h2>
+          </div>
+          
+          <div className="glass-panel overflow-hidden border border-white/50 rounded-[24px]">
             {reports.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center opacity-70">
-                <MapPin className="w-12 h-12 text-on-surface-variant mb-3" />
+              <div className="p-8 flex flex-col items-center justify-center text-center opacity-70">
+                <span className="material-symbols-outlined text-[48px] text-on-surface-variant mb-4">map</span>
                 <p className="text-lg font-bold text-on-surface">No reports yet</p>
                 <p className="text-sm text-on-surface-variant max-w-xs mt-2">
                   When you report pollution incidents, they will appear here.
                 </p>
-                <button 
-                  onClick={() => navigate('/report')}
-                  className="mt-6 btn-primary"
-                >
+                <button onClick={() => navigate('/report')} className="mt-6 btn-primary">
                   Submit a Report
                 </button>
               </div>
             ) : (
-              <div className="space-y-4 overflow-y-auto pr-2" style={{ maxHeight: '600px' }}>
+              <div className="divide-y divide-surface-container/50 overflow-y-auto max-h-[400px]">
                 {reports.map((report) => (
-                  <div key={report.id} className="bg-surface-container-low border border-white/5 p-4 rounded-2xl flex flex-col sm:flex-row gap-4 hover:border-white/10 transition-colors">
-                    
-                    {/* Image Thumbnail */}
-                    <div className="w-full sm:w-24 h-24 rounded-xl overflow-hidden bg-surface-container-highest shrink-0">
-                      <img 
-                        src={report.imageUrl} 
-                        alt="Report" 
-                        className="w-full h-full object-cover"
-                      />
+                  <div key={report.id} onClick={() => navigate(`/report/${report.id}`)} className="p-5 hover:bg-surface-container-low/50 transition-colors flex items-center gap-4 cursor-pointer">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 bg-surface-container">
+                      {report.imageUrl ? (
+                        <img src={report.imageUrl} alt="Report" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-primary/50">
+                          <span className="material-symbols-outlined text-[24px]">image</span>
+                        </div>
+                      )}
                     </div>
                     
-                    {/* Content */}
-                    <div className="flex-1 min-w-0 flex flex-col">
-                      <div className="flex items-start justify-between gap-2 mb-1">
-                        <h4 className="font-bold text-on-surface truncate capitalize">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <h4 className="text-sm font-bold text-on-surface truncate capitalize">
                           {report.category.replace('_', ' ')}
                         </h4>
-                        
-                        {/* Status Badge */}
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          {report.status === 'verified' && <CheckCircle className="w-4 h-4 text-green-400" />}
-                          {report.status === 'pending' && <Clock className="w-4 h-4 text-yellow-400" />}
-                          {report.status === 'rejected' && <XCircle className="w-4 h-4 text-red-400" />}
-                          {report.status === 'resolved' && <Shield className="w-4 h-4 text-blue-400" />}
-                          <span className={`text-xs font-bold capitalize
-                            ${report.status === 'verified' ? 'text-green-400' : ''}
-                            ${report.status === 'pending' ? 'text-yellow-400' : ''}
-                            ${report.status === 'rejected' ? 'text-red-400' : ''}
-                            ${report.status === 'resolved' ? 'text-blue-400' : ''}
-                          `}>
-                            {report.status}
-                          </span>
-                        </div>
                       </div>
-                      
-                      <p className="text-xs text-on-surface-variant flex items-center gap-1 mb-2">
-                        <MapPin className="w-3 h-3" /> 
+                      <p className="text-xs text-on-surface-variant flex items-center gap-1 mb-1 truncate">
+                        <span className="material-symbols-outlined text-[14px]">location_on</span>
                         {report.location.localityName || 'Unknown Location'}
                       </p>
-                      
-                      <div className="mt-auto flex items-center justify-between text-xs text-on-surface-variant">
-                        <span>{report.createdAt ? formatDistanceToNow(report.createdAt as Date, { addSuffix: true }) : ''}</span>
-                        <button 
-                          onClick={() => navigate(`/report/${report.id}`)}
-                          className="text-primary hover:underline font-bold"
-                        >
-                          View Details
-                        </button>
-                      </div>
+                      <p className="text-[10px] text-on-surface-variant/70 uppercase font-semibold">
+                        {report.createdAt ? formatDistanceToNow(report.createdAt as Date, { addSuffix: true }) : ''}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-col items-end gap-2">
+                      <span className={`text-[10px] uppercase tracking-wide font-bold px-2 py-1 rounded-full capitalize
+                        ${report.status === 'verified' ? 'bg-green-100 text-green-700' : ''}
+                        ${report.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : ''}
+                        ${report.status === 'rejected' ? 'bg-red-100 text-red-700' : ''}
+                        ${report.status === 'resolved' ? 'bg-blue-100 text-blue-700' : ''}
+                      `}>
+                        {report.status}
+                      </span>
+                      {report.status === 'verified' && (
+                        <div className="font-bold text-secondary text-sm">
+                          +50 pts
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
+            )}
+            
+            {reports.length > 0 && (
+              <button onClick={() => navigate('/report')} className="w-full py-4 text-sm font-bold text-primary bg-surface-container-low hover:bg-surface-container transition-colors">
+                Submit Another Report
+              </button>
             )}
           </div>
         </div>

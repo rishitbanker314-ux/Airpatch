@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 import { auth, db } from './firebase';
-import type { User as DbUser } from '../../../shared/types';
+import type { User as DbUser } from '../shared/types';
 
 const googleProvider = new GoogleAuthProvider();
 

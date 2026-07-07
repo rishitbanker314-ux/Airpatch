@@ -60,7 +60,11 @@
   --color-surface-glass: rgba(249, 249, 255, 0.8);
 }
 
-@layer base {
+.metric-gauge {
+  transition: stroke-dashoffset 1s ease-in-out;
+}
+
+@layer utilities {
   body {
     @apply bg-background text-on-background font-sans antialiased overflow-x-hidden w-full;
   }

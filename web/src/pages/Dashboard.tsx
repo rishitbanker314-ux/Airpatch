@@ -252,11 +252,17 @@ export function Dashboard() {
 
                     <div className="flex gap-3 mt-auto">
                       {isCritical ? (
-                        <button className="flex-1 bg-aqi-critical text-white rounded-xl py-2.5 text-sm font-bold shadow-md hover:bg-aqi-critical/90 transition-colors flex items-center justify-center gap-2">
+                        <button 
+                          onClick={() => navigate(`/hotspot/${hotspot.id}`)}
+                          className="flex-1 bg-aqi-critical text-white rounded-xl py-2.5 text-sm font-bold shadow-md hover:bg-aqi-critical/90 transition-colors flex items-center justify-center gap-2"
+                        >
                           <span className="material-symbols-outlined text-[18px]">engineering</span> Dispatch Crew
                         </button>
                       ) : (
-                        <button className="flex-1 glass-panel text-primary rounded-xl py-2.5 text-sm font-bold border border-primary/20 hover:bg-white/80 transition-colors flex items-center justify-center gap-2">
+                        <button 
+                          onClick={() => navigate(`/hotspot/${hotspot.id}`)}
+                          className="flex-1 glass-panel text-primary rounded-xl py-2.5 text-sm font-bold border border-primary/20 hover:bg-white/80 transition-colors flex items-center justify-center gap-2"
+                        >
                           <span className="material-symbols-outlined text-[18px]">forum</span> Review
                         </button>
                       )}

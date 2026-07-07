@@ -105,11 +105,11 @@ export async function processReportCreated(reportId: string, data: any) {
       updates.status = 'rejected';
     }
     
-    // Gamification: Award 10 points if it is a verified pollution event
+    // Gamification: Award 50 points if it is a verified pollution event
     if (isSupportedAirPollution && data.createdBy && data.createdBy !== 'anonymous') {
       const userRef = db.collection('users').doc(data.createdBy);
       await userRef.set({
-        points: admin.firestore.FieldValue.increment(10)
+        points: admin.firestore.FieldValue.increment(50)
       }, { merge: true }).catch(err => console.error('[Orchestrator] Failed to award points:', err));
     }
   } else {

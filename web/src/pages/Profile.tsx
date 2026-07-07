@@ -36,7 +36,7 @@ export function Profile() {
   }
 
   const points = dbUser?.points || 0;
-  const verifiedCount = reports.filter(r => r.status === 'verified').length;
+  const verifiedCount = reports.filter(r => r.status === 'verified' || r.status === 'resolved').length;
   
   // Calculate Progress towards next tier
   const nextTierPoints = 14000; // Example target
@@ -206,7 +206,7 @@ export function Profile() {
                       `}>
                         {report.status}
                       </span>
-                      {report.status === 'verified' && (
+                      {(report.status === 'verified' || report.status === 'resolved') && (
                         <div className="font-bold text-secondary text-sm">
                           +50 pts
                         </div>

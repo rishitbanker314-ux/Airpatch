@@ -1,30 +1,38 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHotspots } from '../services/hotspots';
+import { getNetworkTrend } from '../services/reports';
 import type { Hotspot, PollutionCategory } from '../shared/types';
 import { Loader2 } from 'lucide-react';
 
 export function Dashboard() {
   const navigate = useNavigate();
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
+  const [trendData, setTrendData] = useState<number[]>(new Array(9).fill(0));
+  const [peakAqi, setPeakAqi] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [activeFilter, setActiveFilter] = useState<string>('All Reports');
 
   useEffect(() => {
-    const fetchHotspots = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const data = await getHotspots();
-        setHotspots(data);
+        const [hotspotsData, trendBuckets] = await Promise.all([
+          getHotspots(),
+          getNetworkTrend()
+        ]);
+        setHotspots(hotspotsData);
+        setTrendData(trendBuckets);
+        setPeakAqi(Math.max(...trendBuckets, 0));
       } catch (err) {
-        console.error('Failed to fetch hotspots:', err);
+        console.error('Failed to fetch dashboard data:', err);
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
       }
     };
-    fetchHotspots();
+    fetchDashboardData();
   }, []);
 
   if (loading) {
@@ -301,9 +309,10 @@ export function Dashboard() {
               </div>
               {/* Bars */}
               <div className="w-full h-full flex items-end gap-1.5 pl-6">
-                {[30, 45, 40, 60, 85, 95, 70, 50, 65].map((height, i) => {
-                   const isCritical = height >= 90;
-                   const isModerate = height >= 80 && height < 90;
+                {trendData.map((aqi, i) => {
+                   const height = Math.max(Math.min((aqi / 300) * 100, 100), 5); // fallback to 5% min
+                   const isCritical = aqi >= 150;
+                   const isModerate = aqi >= 100 && aqi < 150;
                    const colorClass = isCritical ? 'bg-aqi-critical shadow-[0_0_8px_rgba(124,58,237,0.4)]' : 
                                      isModerate ? 'bg-aqi-moderate' :
                                      (i === 8 ? 'bg-primary-container' : 'bg-primary/20');
@@ -314,7 +323,7 @@ export function Dashboard() {
                        style={{ height: `${height}%` }}
                      >
                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
-                         AQI {Math.round(height * 1.5)}
+                         AQI {Math.round(aqi)}
                        </div>
                      </div>
                    );
@@ -331,7 +340,7 @@ export function Dashboard() {
             <div className="mt-6 pt-4 border-t border-outline-variant/30 flex justify-between items-center">
               <div>
                 <span className="block font-mono font-bold text-[10px] text-outline uppercase mb-1">Peak AQI Today</span>
-                <span className="text-xl font-bold text-aqi-critical">154</span>
+                <span className={`text-xl font-bold ${peakAqi >= 150 ? 'text-aqi-critical' : peakAqi >= 100 ? 'text-aqi-moderate' : 'text-aqi-good'}`}>{Math.round(peakAqi)}</span>
               </div>
               <div className="text-right">
                 <span className="block font-mono font-bold text-[10px] text-outline uppercase mb-1">Network Status</span>

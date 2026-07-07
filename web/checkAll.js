@@ -4,16 +4,16 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore';
 const firebaseConfig = {
   projectId: "airpatch-b750a",
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 async function run() {
-  const snapshot = await getDocs(collection(db, "hotspots"));
-  snapshot.forEach((doc) => {
-    const data = doc.data();
-    console.log(`${doc.id} => status: ${data.status} category: ${data.category} activeReports: ${data.activeReportCount}`);
-  });
-}
+  const hSnap = await getDocs(collection(db, 'hotspots'));
+  console.log("Hotspots:");
+  hSnap.forEach(d => console.log(d.id, d.data()));
 
+  const rSnap = await getDocs(collection(db, 'reports'));
+  console.log("Reports:");
+  rSnap.forEach(d => console.log(d.id, d.data()));
+}
 run();

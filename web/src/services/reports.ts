@@ -79,8 +79,7 @@ export const subscribeToUserReports = (userId: string, callback: (reports: Repor
   const reportsRef = collection(db, 'reports');
   const q = query(
     reportsRef,
-    where('createdBy', '==', userId),
-    orderBy('createdAt', 'desc')
+    where('createdBy', '==', userId)
   );
   
   return onSnapshot(q, (snapshot) => {
@@ -93,11 +92,16 @@ export const subscribeToUserReports = (userId: string, callback: (reports: Repor
         updatedAt: parseDate(data.updatedAt),
       } as Report;
     });
+    
+    // Sort client-side to avoid requiring a composite index
+    reports.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
     callback(reports);
   }, (error) => {
     console.error("Error listening to user reports:", error);
     callback([]);
   });
+};
 };
 
 
@@ -112,5 +116,17 @@ export const fetchCityAqiTrend = async (lat?: number, lng?: number, period?: str
   } catch (error) {
     console.error("Error fetching city AQI trend:", error);
     return new Array(9).fill(0);
+  }
+};
+
+export const fetchCityAqiForecast = async (lat?: number, lng?: number): Promise<number[]> => {
+  const functions = getFunctions();
+  const getCityAqiForecastFunc = httpsCallable(functions, 'getCityAqiForecast');
+  try {
+    const result = await getCityAqiForecastFunc({ lat, lng });
+    return (result.data as any).forecast || [0, 0, 0];
+  } catch (error) {
+    console.error("Error fetching city AQI forecast:", error);
+    return [0, 0, 0];
   }
 };

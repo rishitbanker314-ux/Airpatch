@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, getDoc, serverTimestamp, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, serverTimestamp, query, where, onSnapshot } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from './firebase';
 import { parseDate } from '../utils/date';
@@ -101,7 +101,6 @@ export const subscribeToUserReports = (userId: string, callback: (reports: Repor
     console.error("Error listening to user reports:", error);
     callback([]);
   });
-};
 };
 
 

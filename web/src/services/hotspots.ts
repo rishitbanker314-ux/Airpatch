@@ -39,6 +39,8 @@ export const subscribeToHotspots = (callback: (hotspots: Hotspot[]) => void): ((
         latestReportAt: parseDate(data.latestReportAt),
       } as Hotspot;
     });
+    // Sort by latestReportAt descending so newest reports appear at the top
+    hotspots.sort((a, b) => b.latestReportAt.getTime() - a.latestReportAt.getTime());
     callback(hotspots);
   }, (error) => {
     console.error("Error listening to hotspots:", error);

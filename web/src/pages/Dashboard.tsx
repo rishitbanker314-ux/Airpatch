@@ -98,6 +98,16 @@ export function Dashboard() {
     return cat.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   };
 
+  const getCategoryColorClass = (cat: PollutionCategory) => {
+    switch (cat) {
+      case 'unpicked_waste': return 'text-aqi-moderate';
+      case 'construction_dust': return 'text-aqi-moderate';
+      case 'industrial_smoke': return 'text-outline';
+      case 'stagnant_water': return 'text-blue-500';
+      default: return 'text-primary';
+    }
+  };
+
   const getRiskColorClass = (riskBand?: string) => {
     switch(riskBand) {
       case 'critical': return 'bg-aqi-critical';
@@ -237,33 +247,47 @@ export function Dashboard() {
             filteredHotspots.map((hotspot, index) => {
               const riskBand = hotspot.risk?.riskBand;
               const isCritical = riskBand === 'critical';
+              const isNew = (Date.now() - hotspot.latestReportAt.getTime()) < 5 * 60 * 1000; // Updated in last 5 min
+              const isRecent = (Date.now() - hotspot.latestReportAt.getTime()) < 30 * 60 * 1000; // Updated in last 30 min
+
+              // Time ago helper
+              const minutesAgo = Math.floor((Date.now() - hotspot.latestReportAt.getTime()) / 60000);
+              const timeAgo = minutesAgo < 1 ? 'Just now' : minutesAgo < 60 ? `${minutesAgo}m ago` : minutesAgo < 1440 ? `${Math.floor(minutesAgo / 60)}h ago` : `${Math.floor(minutesAgo / 1440)}d ago`;
+
+              const locationName = hotspot.center.localityName || `${hotspot.center.lat.toFixed(4)}, ${hotspot.center.lng.toFixed(4)}`;
 
               return (
-                <article key={hotspot.id} className="glass-card p-5 hover:scale-[1.01] transition-transform duration-300 relative overflow-hidden group flex flex-col animate-fade-in-up" style={{ animationDelay: `${Math.min(0.1 * index, 0.5)}s` }}>
+                <article key={hotspot.id} className={`glass-card p-5 hover:scale-[1.01] transition-transform duration-300 relative overflow-hidden group flex flex-col animate-fade-in-up ${isNew ? 'ring-2 ring-secondary/50 shadow-[0_0_20px_rgba(85,251,180,0.15)]' : ''}`} style={{ animationDelay: `${Math.min(0.1 * index, 0.5)}s` }}>
                   {/* Left Border indicator */}
                   <div className={`absolute top-0 left-0 w-1 h-full ${getRiskColorClass(riskBand)} ${isCritical ? 'shadow-[0_0_12px_rgba(124,58,237,0.8)]' : ''}`}></div>
                   
                   <div className="flex justify-between items-start mb-3 pl-2">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getRiskBgOpacityClass(riskBand)} ${getRiskTextColorClass(riskBand)} ${getRiskBorderOpacityClass(riskBand)} ${isCritical ? 'pulse-critical' : ''}`}>
-                      <span className="material-symbols-outlined text-[12px]">{isCritical ? 'warning' : (riskBand === 'high' ? 'masks' : 'directions_car')}</span> 
-                      {(riskBand || 'UNKNOWN').toUpperCase()}
-                    </span>
-                    <span className="text-xs font-bold font-mono text-outline flex items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${getRiskBgOpacityClass(riskBand)} ${getRiskTextColorClass(riskBand)} ${getRiskBorderOpacityClass(riskBand)} ${isCritical ? 'pulse-critical' : ''}`}>
+                        <span className="material-symbols-outlined text-[12px]">{isCritical ? 'warning' : (riskBand === 'high' ? 'masks' : 'directions_car')}</span> 
+                        {(riskBand || 'UNKNOWN').toUpperCase()}
+                      </span>
+                      {isNew && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary/15 text-secondary border border-secondary/30 animate-pulse">
+                          <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                          NEW
+                        </span>
+                      )}
+                    </div>
+                    <span className={`text-xs font-bold font-mono flex items-center gap-1 ${isRecent ? 'text-secondary' : 'text-outline'}`}>
                       <span className="material-symbols-outlined text-[14px]">schedule</span> 
-                      {hotspot.latestReportAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {timeAgo}
                     </span>
                   </div>
 
                   <div className="pl-2 flex-1 flex flex-col">
-                    <h3 className="text-lg font-bold text-on-surface mb-1 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-outline">{getCategoryIcon(hotspot.category)}</span> 
-                      {getCategoryLabel(hotspot.category)}
+                    <h3 className="text-lg font-bold text-on-surface mb-0.5 flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px] text-outline">location_on</span> 
+                      <span className="truncate">{locationName}</span>
                     </h3>
                     <div className="flex items-center text-sm text-on-surface-variant mt-1 mb-4">
-                      <span className="material-symbols-outlined text-[14px] mr-1">location_on</span>
-                      <span className="truncate max-w-[200px]">
-                        {hotspot.center.localityName || `${hotspot.center.lat.toFixed(4)}, ${hotspot.center.lng.toFixed(4)}`}
-                      </span>
+                      <span className={`material-symbols-outlined text-[14px] mr-1 ${getCategoryColorClass(hotspot.category)}`}>{getCategoryIcon(hotspot.category)}</span>
+                      <span>{getCategoryLabel(hotspot.category)}</span>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mb-5">

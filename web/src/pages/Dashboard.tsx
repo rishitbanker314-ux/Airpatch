@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHotspots } from '../services/hotspots';
-import { fetchCityAqiTrend } from '../services/reports';
+import { subscribeToHotspots } from '../services/hotspots';
+import { fetchCityAqiTrend, fetchCityAqiForecast } from '../services/reports';
 import type { Hotspot, PollutionCategory } from '../shared/types';
 import { Loader2 } from 'lucide-react';
 
@@ -15,20 +15,17 @@ export function Dashboard() {
   const [activeFilter, setActiveFilter] = useState<string>('All Reports');
   const [trendPeriod, setTrendPeriod] = useState<'24h' | 'weekly' | 'monthly'>('24h');
   const [isTrendMenuOpen, setIsTrendMenuOpen] = useState(false);
+  const [forecastData, setForecastData] = useState<number[]>([0, 0, 0]);
 
   useEffect(() => {
-    const fetchHotspotsData = async () => {
-      try {
-        const hotspotsData = await getHotspots();
-        setHotspots(hotspotsData);
-      } catch (err) {
-        console.error('Failed to fetch hotspots:', err);
-        setError('Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHotspotsData();
+    setLoading(true);
+    const unsubscribe = subscribeToHotspots((hotspotsData) => {
+      setHotspots(hotspotsData);
+      setLoading(false);
+      setError(null);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -42,6 +39,16 @@ export function Dashboard() {
       }
     };
     fetchTrendData();
+
+    const fetchForecast = async () => {
+      try {
+        const forecast = await fetchCityAqiForecast(28.6139, 77.2090);
+        setForecastData(forecast);
+      } catch (err) {
+        console.error('Failed to fetch forecast data:', err);
+      }
+    };
+    fetchForecast();
   }, [trendPeriod]);
 
   if (loading) {
@@ -153,7 +160,7 @@ export function Dashboard() {
 
       {/* Summary Stats (Bento Grid Style) */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="glass-card p-5 relative overflow-hidden group">
+        <div className="glass-card p-5 relative overflow-hidden group animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-aqi-critical/10 rounded-full blur-xl group-hover:bg-aqi-critical/20 transition-colors"></div>
           <div className="flex justify-between items-start mb-4 relative z-10">
             <h3 className="text-sm font-semibold text-on-surface-variant">Critical Hotspots</h3>
@@ -165,7 +172,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-card p-5 relative overflow-hidden group">
+        <div className="glass-card p-5 relative overflow-hidden group animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-colors"></div>
           <div className="flex justify-between items-start mb-4 relative z-10">
             <h3 className="text-sm font-semibold text-on-surface-variant">Avg. Resolution Time</h3>
@@ -178,7 +185,7 @@ export function Dashboard() {
           </div>
         </div>
 
-        <div className="glass-card p-5 relative overflow-hidden group">
+        <div className="glass-card p-5 relative overflow-hidden group animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <div className="absolute -right-4 -top-4 w-24 h-24 bg-secondary/10 rounded-full blur-xl group-hover:bg-secondary/20 transition-colors"></div>
           <div className="flex justify-between items-start mb-4 relative z-10">
             <h3 className="text-sm font-semibold text-on-surface-variant">AI Verification Avg</h3>
@@ -221,18 +228,18 @@ export function Dashboard() {
       {/* Main Layout: Grid + Sidebar */}
       <div className="flex flex-col-reverse xl:flex-row gap-6 flex-1">
         {/* Hotspot Grid */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-max max-h-[600px] overflow-y-auto pr-2 pb-4">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 auto-rows-max xl:max-h-[600px] xl:overflow-y-auto xl:pr-2 pb-4">
           {filteredHotspots.length === 0 ? (
             <div className="col-span-full py-12 text-center text-on-surface-variant">
               No hotspots found for this filter.
             </div>
           ) : (
-            filteredHotspots.map(hotspot => {
+            filteredHotspots.map((hotspot, index) => {
               const riskBand = hotspot.risk?.riskBand;
               const isCritical = riskBand === 'critical';
 
               return (
-                <article key={hotspot.id} className="glass-card p-5 hover:scale-[1.01] transition-transform duration-300 relative overflow-hidden group flex flex-col">
+                <article key={hotspot.id} className="glass-card p-5 hover:scale-[1.01] transition-transform duration-300 relative overflow-hidden group flex flex-col animate-fade-in-up" style={{ animationDelay: `${Math.min(0.1 * index, 0.5)}s` }}>
                   {/* Left Border indicator */}
                   <div className={`absolute top-0 left-0 w-1 h-full ${getRiskColorClass(riskBand)} ${isCritical ? 'shadow-[0_0_12px_rgba(124,58,237,0.8)]' : ''}`}></div>
                   
@@ -252,9 +259,12 @@ export function Dashboard() {
                       <span className="material-symbols-outlined text-outline">{getCategoryIcon(hotspot.category)}</span> 
                       {getCategoryLabel(hotspot.category)}
                     </h3>
-                    <p className="text-sm text-on-surface-variant mb-4">
-                       {hotspot.center.lat.toFixed(4)}, {hotspot.center.lng.toFixed(4)}
-                    </p>
+                    <div className="flex items-center text-sm text-on-surface-variant mt-1 mb-4">
+                      <span className="material-symbols-outlined text-[14px] mr-1">location_on</span>
+                      <span className="truncate max-w-[200px]">
+                        {hotspot.center.localityName || `${hotspot.center.lat.toFixed(4)}, ${hotspot.center.lng.toFixed(4)}`}
+                      </span>
+                    </div>
 
                     <div className="flex flex-wrap gap-2 mb-5">
                       <div className="bg-white/50 border border-white/60 rounded-lg px-3 py-1.5 flex flex-col">
@@ -299,7 +309,7 @@ export function Dashboard() {
         </div>
 
         {/* Right Sidebar: Analytics & Trends */}
-        <aside className="w-full max-w-sm mx-auto xl:mx-0 xl:w-[320px] flex flex-col gap-4 sticky top-20 h-fit z-10">
+        <aside className="w-full max-w-sm mx-auto xl:mx-0 xl:w-[320px] flex flex-col gap-4 xl:sticky xl:top-20 xl:h-fit xl:z-10 relative mb-6 xl:mb-0">
           <div className="glass-card p-5 flex flex-col h-auto">
             <div className="flex justify-between items-center mb-6 relative">
               <h3 className="text-lg font-bold text-on-surface">
@@ -392,6 +402,56 @@ export function Dashboard() {
                 <span className="block font-mono font-bold text-[10px] text-outline uppercase mb-1">Network Status</span>
                 <span className="text-sm font-bold text-secondary flex items-center gap-1 justify-end"><span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> Optimal</span>
               </div>
+            </div>
+          </div>
+          
+          {/* AQI Forecast Widget */}
+          <div className="glass-card p-0 flex flex-col h-auto overflow-hidden relative group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+            
+            <div className="p-5 pb-4">
+              <h3 className="text-lg font-bold text-on-surface flex items-center gap-2 relative z-10">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined text-[18px]">online_prediction</span>
+                </div>
+                Forecast AI
+              </h3>
+              <p className="text-xs text-on-surface-variant mt-1 ml-10">Predictive air quality modeling</p>
+            </div>
+            
+            <div className="flex flex-col px-5 pb-5 gap-2 relative z-10">
+              {['Tomorrow', 'Day 2', 'Day 3'].map((dayLabel, index) => {
+                const fAqi = forecastData[index] || (index + 1) * 30; // fallback logic if 0
+                const isCritical = fAqi >= 150;
+                const isModerate = fAqi >= 100 && fAqi < 150;
+                
+                const textColor = isCritical ? 'text-aqi-critical' : isModerate ? 'text-aqi-moderate' : 'text-aqi-good';
+                const bgColor = isCritical ? 'bg-aqi-critical' : isModerate ? 'bg-aqi-moderate' : 'bg-aqi-good';
+                
+                let statusLabel = 'Good';
+                if (isCritical) statusLabel = 'Unhealthy';
+                else if (isModerate) statusLabel = 'Moderate';
+                
+                const barWidth = Math.min((fAqi / 300) * 100, 100);
+                
+                return (
+                  <div key={index} className="flex flex-col gap-1.5 p-3 bg-surface-variant/20 rounded-xl hover:bg-surface-variant/40 transition-colors cursor-default">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">{dayLabel}</span>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${textColor}`}>{statusLabel}</span>
+                        <span className={`font-mono text-sm font-bold ${textColor}`}>
+                          {Math.round(fAqi)}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Progress Bar Style Indicator */}
+                    <div className="w-full h-1.5 bg-black/5 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${bgColor} shadow-[0_0_8px_currentColor] opacity-80`} style={{ width: `${barWidth}%`, color: 'inherit' }}></div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </aside>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Map, AdvancedMarker } from '@vis.gl/react-google-maps';
-import { getHotspots } from '../services/hotspots';
+import { subscribeToHotspots } from '../services/hotspots';
 import type { Hotspot, PollutionCategory } from '../shared/types';
 
 
@@ -9,23 +9,19 @@ export function HomeMap() {
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<PollutionCategory | 'all'>('all');
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const [mapCenter, setMapCenter] = useState({ lat: 28.6139, lng: 77.2090 }); // Default to New Delhi
-  const [showToast, setShowToast] = useState(true);
 
   useEffect(() => {
-    const fetchHotspots = async () => {
-      try {
-        const data = await getHotspots();
-        setHotspots(data);
-      } catch (err) {
-        console.error('Failed to fetch hotspots:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchHotspots();
+    setLoading(true);
+    const unsubscribe = subscribeToHotspots((data) => {
+      setHotspots(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const filteredHotspots = hotspots.filter(h => filter === 'all' || h.category === filter);
@@ -71,7 +67,7 @@ export function HomeMap() {
     <div className="relative h-full w-full flex flex-col font-sans">
       {/* LAYER 3: Floating Canvas Content (Filters, Overlays, FAB) */}
       {/* Map Filters (Top Center) */}
-      <div className="absolute z-30 top-20 md:top-[40px] left-1/2 -translate-x-1/2 flex items-center bg-surface-glass backdrop-blur-xl border border-white/40 shadow-sm rounded-full p-1 pointer-events-auto overflow-x-auto max-w-[95vw]">
+      <div className="absolute z-30 top-20 md:top-[40px] left-1/2 -translate-x-1/2 flex items-center bg-surface-glass backdrop-blur-xl border border-white/40 shadow-sm rounded-full p-1 pointer-events-auto overflow-x-auto hide-scrollbar max-w-[95vw]">
         <button 
           onClick={() => setFilter('all')}
           className={`px-5 py-2 rounded-full font-bold text-sm transition-all whitespace-nowrap ${filter === 'all' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
@@ -94,72 +90,49 @@ export function HomeMap() {
         </button>
         <button 
           onClick={() => setFilter('industrial_smoke')}
-          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap hidden lg:flex ${filter === 'industrial_smoke' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap ${filter === 'industrial_smoke' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
         >
           <span className="material-symbols-outlined text-[18px]">factory</span>
           Industrial
         </button>
         <button 
           onClick={() => setFilter('stagnant_water')}
-          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap hidden md:flex ${filter === 'stagnant_water' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
+          className={`px-5 py-2 rounded-full text-sm font-medium flex items-center gap-2 transition-all whitespace-nowrap ${filter === 'stagnant_water' ? 'bg-primary-container text-on-primary-container shadow-sm hover:scale-105' : 'text-on-surface-variant hover:bg-surface-container-low'}`}
         >
           <span className="material-symbols-outlined text-[18px]">water_drop</span>
           Water
         </button>
       </div>
 
-      {/* Floating Risk Overlay (Right side on Desktop) */}
-      <div className="hidden xl:flex absolute z-30 top-[40px] right-[40px] w-80 flex-col gap-4 pointer-events-auto">
-        <div className="bg-surface-glass backdrop-blur-xl border border-white/40 shadow-lg rounded-2xl p-5 relative overflow-hidden">
-          {/* Subtle gradient background purely for aesthetic depth */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
-          
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[20px] font-bold text-on-surface">Active Hotspots</h2>
-              <span className="px-2 py-1 bg-error-container text-on-error-container font-mono text-xs rounded-md font-bold">
-                {filteredHotspots.length} Nearby
-              </span>
-            </div>
-            
-            <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-              {filteredHotspots.slice(0, 5).map(h => (
-                <div key={h.id} onClick={() => navigate(`/hotspot/${h.id}`)} className="flex items-start gap-3 p-3 bg-surface-container-lowest/50 rounded-xl border border-white/30 hover:bg-white/60 transition-colors cursor-pointer">
-                  <div className={`w-2 h-2 mt-2 rounded-full shrink-0 shadow-[0_0_8px_rgba(0,0,0,0.3)] ${getMarkerBgClass(h.risk?.riskBand)}`}></div>
-                  <div>
-                    <p className="text-sm font-bold text-on-surface capitalize">{h.category.replace(/_/g, ' ')}</p>
-                    <p className="text-[13px] text-on-surface-variant leading-tight mt-1">
-                      {h.activeReportCount} active reports detected in this zone.
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {filteredHotspots.length === 0 && (
-                <p className="text-sm text-on-surface-variant italic">No hotspots match the filter.</p>
-              )}
-            </div>
+      {/* Floating Notifications */}
+      <div className="absolute z-30 bottom-6 md:top-[40px] md:bottom-auto right-4 left-4 md:left-auto md:right-[40px] md:w-80 flex-col gap-3 pointer-events-none flex">
+        {filteredHotspots.filter(h => !dismissedIds.includes(h.id)).slice(0, 5).map((h, index) => (
+          <div 
+            key={h.id} 
+            onClick={() => navigate(`/hotspot/${h.id}`)} 
+            className="bg-surface-glass backdrop-blur-xl border border-white/40 shadow-lg rounded-2xl p-4 flex items-start gap-3 relative animate-notification hover:scale-[1.02] transition-transform cursor-pointer pointer-events-auto"
+            style={{ animationDelay: `${index * 0.15}s` }}
+          >
+             <button 
+               onClick={(e) => { e.stopPropagation(); setDismissedIds(prev => [...prev, h.id]); }}
+               className="absolute top-2 right-2 text-on-surface-variant hover:text-error transition-colors"
+             >
+               <span className="material-symbols-outlined text-[16px]">close</span>
+             </button>
+             <div className="relative mt-1 shrink-0">
+               <div className={`absolute -inset-1 rounded-full animate-ping opacity-75 ${getMarkerBgClass(h.risk?.riskBand)}`}></div>
+               <div className={`relative w-2 h-2 rounded-full shadow-[0_0_8px_rgba(0,0,0,0.3)] ${getMarkerBgClass(h.risk?.riskBand)}`}></div>
+             </div>
+             <div className="pr-4">
+               <p className="text-sm font-bold text-on-surface capitalize">{h.category.replace(/_/g, ' ')}</p>
+               <p className="text-[13px] text-on-surface-variant leading-tight mt-1">
+                 {h.activeReportCount} active reports detected in this zone.
+               </p>
+             </div>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* Recent Activity Feed (Toast style, Bottom Center) */}
-      {showToast && (
-        <div className="absolute z-30 bottom-[90px] md:bottom-[40px] left-1/2 -translate-x-1/2 w-[90%] max-w-md pointer-events-auto">
-          <div className="bg-surface-glass backdrop-blur-xl border border-white/50 shadow-lg rounded-full px-4 py-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
-                <span className="material-symbols-outlined text-[18px]">campaign</span>
-              </div>
-              <p className="text-sm font-semibold text-on-surface line-clamp-1">
-                System active in New Delhi - <span className="text-secondary font-bold">All OK</span>
-              </p>
-            </div>
-            <button onClick={() => setShowToast(false)} className="text-on-surface-variant hover:text-primary transition-colors">
-              <span className="material-symbols-outlined text-[20px]">close</span>
-            </button>
-          </div>
-        </div>
-      )}
 
 
       {/* LAYER 0: Map Background Canvas */}

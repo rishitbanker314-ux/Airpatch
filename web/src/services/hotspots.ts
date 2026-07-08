@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { parseDate } from '../utils/date';
 import type { Hotspot, Report } from '../shared/types';
@@ -18,6 +18,31 @@ export const getHotspots = async (): Promise<Hotspot[]> => {
       updatedAt: parseDate(data.updatedAt),
       latestReportAt: parseDate(data.latestReportAt),
     } as Hotspot;
+  });
+};
+
+
+export const subscribeToHotspots = (callback: (hotspots: Hotspot[]) => void): (() => void) => {
+  const q = query(
+    collection(db, 'hotspots'),
+    where('status', '==', 'active')
+  );
+  
+  return onSnapshot(q, (snapshot) => {
+    const hotspots = snapshot.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        firstSeenAt: parseDate(data.firstSeenAt),
+        updatedAt: parseDate(data.updatedAt),
+        latestReportAt: parseDate(data.latestReportAt),
+      } as Hotspot;
+    });
+    callback(hotspots);
+  }, (error) => {
+    console.error("Error listening to hotspots:", error);
+    callback([]);
   });
 };
 

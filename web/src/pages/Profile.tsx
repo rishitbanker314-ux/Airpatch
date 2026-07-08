@@ -8,6 +8,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 export function Profile() {
   const { user, dbUser, loading } = useAuth();
+  
+  // Base trust is 50%. Each verified report awards 50 points. 
+  // We scale so 500 points (10 reports) reaches ~99%.
+  const trustLevel = Math.min(99, Math.floor(50 + (dbUser?.points || 0) / 10));
   const navigate = useNavigate();
   const [reports, setReports] = useState<Report[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -46,7 +50,6 @@ export function Profile() {
     );
   }
 
-  const points = dbUser?.points || 0;
   const verifiedCount = reports.filter(r => r.status === 'verified' || r.status === 'resolved').length + resolutions.length;
   
   type ActivityItem = 
@@ -57,10 +60,6 @@ export function Profile() {
     ...reports.map(r => ({ type: 'report' as const, data: r, timestamp: r.createdAt.getTime() })),
     ...resolutions.map(r => ({ type: 'resolution' as const, data: r, timestamp: r.createdAt.getTime() }))
   ].sort((a, b) => b.timestamp - a.timestamp);
-  
-  // Calculate Progress towards next tier
-  const nextTierPoints = 14000; // Example target
-  const progressPercent = Math.min((points / nextTierPoints) * 100, 100);
 
   return (
     <div className="p-4 lg:p-10 max-w-[1440px] mx-auto space-y-10 lg:space-y-12 pb-32">
@@ -88,30 +87,12 @@ export function Profile() {
             <p className="text-on-surface-variant flex items-center justify-center md:justify-start gap-1 mt-1 text-sm">
               <span className="material-symbols-outlined text-primary text-[18px]">location_on</span> Global Contributor
             </p>
-            <div className="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
-              <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold">Top 1% Steward</span>
-              <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs font-semibold">Verified Contributor</span>
-            </div>
-          </div>
-          
-          <div className="flex flex-col items-center md:items-end gap-1">
-            <span className="text-xs uppercase tracking-widest text-outline font-bold">Total Impact Points</span>
-            <div className="flex items-baseline gap-2">
-              <span className="font-headline text-5xl font-bold text-primary">{points.toLocaleString()}</span>
-            </div>
-            <div className="w-48 h-2 bg-surface-container-high rounded-full overflow-hidden mt-2">
-              <div 
-                className="h-full bg-primary rounded-full shadow-[0_0_12px_rgba(29,97,255,0.4)] transition-all duration-1000 ease-out" 
-                style={{ width: `${progressPercent}%` }}
-              ></div>
-            </div>
-            <span className="text-xs text-on-surface-variant mt-1 font-medium">{Math.max(nextTierPoints - points, 0).toLocaleString()} points until Elite Tier</span>
           </div>
         </div>
       </section>
 
       {/* Metrics Grid (Bento Style) */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Metric 1 */}
         <div className="bg-surface-bright border border-white/50 p-6 rounded-[24px] shadow-sm hover:scale-[1.02] transition-transform">
           <div className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary mb-4">
@@ -139,31 +120,19 @@ export function Profile() {
             </span>
           </div>
         </div>
-        
-        {/* Metric 3 */}
-        <div className="bg-surface-bright border border-white/50 p-6 rounded-[24px] shadow-sm hover:scale-[1.02] transition-transform">
-          <div className="w-12 h-12 rounded-xl bg-tertiary-container/10 flex items-center justify-center text-tertiary mb-4">
-            <span className="material-symbols-outlined text-[28px]">groups</span>
+
+        {/* Metric 3: AI Trust */}
+        <div className="bg-surface-bright border border-white/50 p-6 rounded-[24px] shadow-sm hover:scale-[1.02] transition-transform relative overflow-hidden group">
+          <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-xl group-hover:bg-primary/20 transition-colors"></div>
+          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-4 relative z-10">
+            <span className="material-symbols-outlined text-[28px]">security</span>
           </div>
-          <h3 className="text-xs text-outline uppercase tracking-wider font-bold">Community Assists</h3>
-          <div className="flex items-center justify-between mt-2">
-            <span className="font-headline text-3xl font-bold">0</span>
-            <span className="text-on-surface-variant text-sm font-semibold">Stable</span>
-          </div>
-        </div>
-        
-        {/* Metric 4 (Environmental Gauge) */}
-        <div className="bg-primary p-6 rounded-[24px] shadow-lg text-white flex flex-col justify-between overflow-hidden relative group">
-          <div className="absolute -right-4 -bottom-4 opacity-10 rotate-12 transition-transform group-hover:scale-110">
-            <span className="material-symbols-outlined text-[120px]">psychology</span>
-          </div>
-          <h3 className="text-xs opacity-80 uppercase tracking-wider font-bold relative z-10">Steward Health</h3>
-          <div className="relative z-10">
-            <div className="flex items-baseline gap-1 mt-2">
-              <span className="font-headline text-5xl font-bold">98</span>
-              <span className="font-headline text-2xl opacity-80">%</span>
-            </div>
-            <p className="text-sm mt-2 font-medium">Optimal Performance</p>
+          <h3 className="text-xs text-outline uppercase tracking-wider font-bold relative z-10">AI Trust Level</h3>
+          <div className="flex items-center justify-between mt-2 relative z-10">
+            <span className="font-headline text-3xl font-bold text-primary">{trustLevel}%</span>
+            <span className="text-primary text-sm font-semibold flex items-center gap-1">
+              High
+            </span>
           </div>
         </div>
       </section>
@@ -229,11 +198,6 @@ export function Profile() {
                           `}>
                             {report.status}
                           </span>
-                          {(report.status === 'verified' || report.status === 'resolved') && (
-                            <div className="font-bold text-secondary text-sm">
-                              +50 pts
-                            </div>
-                          )}
                         </div>
                       </div>
                     );
@@ -269,9 +233,6 @@ export function Profile() {
                           <span className={`text-[10px] uppercase tracking-wide font-bold px-2 py-1 rounded-full capitalize bg-blue-100 text-blue-700`}>
                             Resolved
                           </span>
-                          <div className="font-bold text-secondary text-sm">
-                            +20 pts
-                          </div>
                         </div>
                       </div>
                     );

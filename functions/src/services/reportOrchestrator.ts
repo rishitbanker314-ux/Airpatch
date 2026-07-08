@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { analyzeHotspotImage } from '../providers/geminiProvider';
 import { getWeather, getAirPollution } from '../providers/openWeatherProvider';
 
@@ -21,7 +22,7 @@ export async function processReportCreated(reportId: string, data: any) {
   await reportRef.update({
     aiStatus: 'pending',
     contextStatus: 'pending',
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    updatedAt: FieldValue.serverTimestamp()
   });
 
   // Prepare promises
@@ -88,7 +89,7 @@ export async function processReportCreated(reportId: string, data: any) {
   ]);
 
   const updates: any = {
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    updatedAt: FieldValue.serverTimestamp()
   };
 
   // Process Gemini Result
@@ -109,7 +110,7 @@ export async function processReportCreated(reportId: string, data: any) {
     if (isSupportedAirPollution && data.createdBy && data.createdBy !== 'anonymous') {
       const userRef = db.collection('users').doc(data.createdBy);
       await userRef.set({
-        points: admin.firestore.FieldValue.increment(50)
+        points: FieldValue.increment(50)
       }, { merge: true }).catch(err => console.error('[Orchestrator] Failed to award points:', err));
     }
   } else {

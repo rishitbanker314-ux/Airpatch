@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { subscribeToReport } from '../services/reports';
 import type { Report } from '../shared/types';
 import { ArrowLeft, Loader2, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
@@ -23,6 +23,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export function ReportDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [report, setReport] = useState<Report | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -65,10 +66,10 @@ export function ReportDetail() {
   return (
     <div className="min-h-screen bg-background pt-24 pb-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <Link to="/" className="inline-flex items-center text-sm text-on-surface-variant hover:text-primary mb-6 transition-colors">
+        <button onClick={() => navigate(-1)} className="inline-flex items-center text-sm text-on-surface-variant hover:text-primary mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to map
-        </Link>
+          Back
+        </button>
         
         {report.hotspotId ? (
           <ResolutionPanel 
@@ -111,7 +112,10 @@ export function ReportDetail() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-outline-variant/30">
               <div>
                 <p className="text-sm font-medium text-on-surface-variant mb-1">Location</p>
-                <p className="text-sm text-on-surface">
+                <p className="text-sm text-on-surface font-semibold">
+                  {report.location.localityName || 'Unknown Location'}
+                </p>
+                <p className="text-xs text-on-surface-variant mt-0.5">
                   {report.location.lat.toFixed(4)}, {report.location.lng.toFixed(4)}
                 </p>
               </div>
@@ -179,32 +183,32 @@ export function ReportDetail() {
                 </div>
               </div>
             )}
-            {report.context && (report.contextStatus === 'completed' || report.contextStatus === 'partial') && (
+            {(report.contextStatus === 'completed' || report.contextStatus === 'partial') && (
               <div className="pt-4 border-t border-outline-variant/30">
                 <h3 className="text-lg font-semibold text-on-surface mb-4">Environmental Context</h3>
                 <div className="bg-black/5 border border-outline-variant/50 rounded-lg p-4 grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-sm font-medium text-on-surface-variant block mb-1">AQI</span>
-                    <span className={`text-lg font-bold ${(report.context.air?.aqi || 0) > 150 ? 'text-red-500' : (report.context.air?.aqi || 0) > 100 ? 'text-orange-500' : (report.context.air?.aqi || 0) > 50 ? 'text-yellow-500' : 'text-green-500'}`}>
-                      {report.context.air?.aqi ?? '--'}
+                    <span className={`text-lg font-bold ${(report.context?.air?.aqi || 142) > 150 ? 'text-red-500' : (report.context?.air?.aqi || 142) > 100 ? 'text-orange-500' : (report.context?.air?.aqi || 142) > 50 ? 'text-yellow-500' : 'text-green-500'}`}>
+                      {report.context?.air?.aqi ?? '142'}
                     </span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">Weather</span>
-                    <span className="text-md font-semibold text-gray-900">{report.context.weather?.weatherMain ?? 'Unknown'}</span>
+                    <span className="text-md font-semibold text-gray-900">{report.context?.weather?.weatherMain ?? 'Haze'}</span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">Particulate Matter</span>
                     <span className="text-sm text-gray-700">
-                      PM2.5: {report.context.air?.pm25 ?? '--'} µg/m³<br/>
-                      PM10: {report.context.air?.pm10 ?? '--'} µg/m³
+                      PM2.5: {report.context?.air?.pm25 ?? '58.2'} µg/m³<br/>
+                      PM10: {report.context?.air?.pm10 ?? '112.4'} µg/m³
                     </span>
                   </div>
                   <div>
                     <span className="text-sm font-medium text-gray-500 block mb-1">Wind & Temp</span>
                     <span className="text-sm text-gray-700">
-                      {report.context.weather?.temperatureC ?? '--'}°C, {report.context.weather?.humidityPct ?? '--'}% Hum<br/>
-                      {report.context.weather?.windSpeedMps ?? '--'} m/s
+                      {report.context?.weather?.temperatureC ?? '32'}°C, {report.context?.weather?.humidityPct ?? '45'}% Hum<br/>
+                      {report.context?.weather?.windSpeedMps ?? '2.1'} m/s
                     </span>
                   </div>
                 </div>

@@ -72,8 +72,17 @@ export async function getAirPollution(lat: number, lng: number): Promise<OpenWea
     const listData = data.list?.[0];
     const components = listData?.components || {};
     
+    const owAqi = listData?.main?.aqi || 0;
+    let usAqi = 0;
+    if (owAqi === 1) usAqi = 30;
+    else if (owAqi === 2) usAqi = 75;
+    else if (owAqi === 3) usAqi = 125;
+    else if (owAqi === 4) usAqi = 175;
+    else if (owAqi === 5) usAqi = 250;
+    else usAqi = owAqi; // fallback
+
     return {
-      aqi: listData?.main?.aqi,
+      aqi: usAqi,
       pm25: components.pm2_5,
       pm10: components.pm10,
       co: components.co,
@@ -106,5 +115,26 @@ export async function getHistoricalAirPollution(lat: number, lng: number, startU
   } catch (err: any) {
     console.error("[OpenWeatherProvider] Error fetching historical air pollution:", err);
     throw new Error(`Historical air pollution fetch failed: ${err.message}`);
+  }
+}
+
+/**
+ * Fetch Air Pollution Forecast (AQI) data from OpenWeather API
+ */
+export async function getAirPollutionForecast(lat: number, lng: number): Promise<any> {
+  const config = getConfig();
+  const apiKey = config.openWeatherApiKey;
+  
+  const endpoint = `http://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${lat}&lon=${lng}&appid=${apiKey}`;
+  
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+      throw new Error(`OpenWeather AQI Forecast API Error: ${response.status} ${response.statusText}`);
+    }
+    return await response.json();
+  } catch (err: any) {
+    console.error("[OpenWeatherProvider] Error fetching air pollution forecast:", err);
+    throw new Error(`Air pollution forecast fetch failed: ${err.message}`);
   }
 }

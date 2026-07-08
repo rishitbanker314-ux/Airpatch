@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Steward Impact Profile | AirPatch</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-surface {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(228, 228, 233, 0.5);
+        }
+        .glass-border {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        body {
+            background-color: #f9f9ff;
+            color: #141b2c;
+            font-family: 'Inter', sans-serif;
+        }
+        .achievement-card:hover .badge-glow {
+            opacity: 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#ffdad6",
+                      "primary-fixed-dim": "#b5c4ff",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-container": "#f2f4ff",
+                      "outline-variant": "#c3c5d9",
+                      "on-tertiary-fixed-variant": "#3d475a",
+                      "surface": "#f9f9ff",
+                      "on-primary": "#ffffff",
+                      "outline": "#737687",
+                      "inverse-on-surface": "#edf0ff",
+                      "secondary": "#006c48",
+                      "on-tertiary-fixed": "#111c2d",
+                      "primary-fixed": "#dce1ff",
+                      "on-surface": "#141b2c",
+                      "tertiary-fixed": "#d9e3fb",
+                      "on-primary-container": "#f4f3ff",
+                      "surface-container-highest": "#dbe2f9",
+                      "inverse-primary": "#b5c4ff",
+                      "primary": "#004ad3",
+                      "on-error-container": "#93000a",
+                      "on-primary-fixed": "#00164e",
+                      "primary-container": "#1d61ff",
+                      "on-background": "#141b2c",
+                      "tertiary-container": "#667085",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#f9f9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed-variant": "#003bae",
+                      "surface-container": "#e9edff",
+                      "secondary-fixed": "#58feb7",
+                      "surface-container-low": "#f1f3ff",
+                      "surface-tint": "#0050e3",
+                      "background": "#f9f9ff",
+                      "secondary-fixed-dim": "#2fe19c",
+                      "surface-container-high": "#e0e8ff",
+                      "on-secondary-container": "#00714b",
+                      "secondary-container": "#55fbb4",
+                      "surface-variant": "#dbe2f9",
+                      "on-surface-variant": "#434656",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-fixed": "#002113",
+                      "inverse-surface": "#293041",
+                      "tertiary": "#4e586c",
+                      "surface-dim": "#d2daf0",
+                      "on-secondary-fixed-variant": "#005235",
+                      "tertiary-fixed-dim": "#bdc7de"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "48px",
+                      "base": "8px",
+                      "md": "24px",
+                      "xl": "64px",
+                      "xs": "4px",
+                      "lg": "40px",
+                      "margin-mobile": "16px",
+                      "sm": "12px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "display-lg-mobile": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "title-lg": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "label-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "600"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- Desktop SideNav -->
+<aside class="fixed left-0 top-0 h-full w-64 bg-surface/80 dark:bg-surface-container/80 backdrop-blur-md border-r border-white/20 shadow-[8px_0_24px_rgba(16,24,40,0.05)] hidden lg:flex flex-col h-full py-8 px-6 z-50">
+<div class="mb-10 px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">AirPatch</h1>
+<p class="font-label-md text-label-md text-on-surface-variant">Environmental Lead</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high/50 transition-colors" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high/50 transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-md text-label-md">Report</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high/50 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-primary font-bold border-r-2 border-primary bg-surface-container-high/50" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</a>
+</nav>
+<button class="mt-auto w-full bg-primary text-white py-3 rounded-lg font-label-md text-label-md active:scale-[0.98] transition-transform">
+            Contribute
+        </button>
+</aside>
+<!-- Top AppBar -->
+<header class="fixed top-0 right-0 w-full lg:w-[calc(100%-16rem)] h-16 bg-surface/80 backdrop-blur-md border-b border-white/20 flex justify-between items-center px-6 lg:px-margin-desktop z-40">
+<div class="flex items-center gap-4">
+<div class="relative w-64 hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-1.5 pl-10 pr-4 font-body-md text-body-md focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all" placeholder="Search insights..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a middle-aged woman with a friendly expression, set against a blurred background of a modern architectural office with large windows. The lighting is bright and natural, reinforcing a professional and reliable image. Her attire is business casual in neutral tones, blending perfectly with the clean, high-trust AirPatch brand aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuvmCqTg4s6kIzyrY65E20Ff_U7NGFmphfHuOodpCOBPkHh0QFQYQogWB-40pC4JyScEPNudUsW2qCtrqaVGlgcM8TZxe_ThOzIP9rd6LtGEliAIwfa8xPpQayd_p10JgIBz5l3KEyIQIfY1IbvhqGP1Ioi8sqOwplgxzaw1YdEppgLRYHzapYWcMPiE8iPkl2Lli7-Oen6ehAM19C47YcNtL76Dd5ne-SXVkzUNOzFI9BcSDSdt_o6NfWeljZann23_uXmyrgYg"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-32 lg:pb-12 px-4 lg:px-margin-desktop lg:ml-64 max-w-[1440px] mx-auto">
+<!-- Profile Header Section -->
+<section class="mb-lg">
+<div class="glass-surface p-8 rounded-[32px] flex flex-col md:flex-row items-center gap-8 shadow-[0_8px_24px_rgba(16,24,40,0.05)] relative overflow-hidden">
+<div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative">
+<div class="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up professional profile photo of an environmental scientist in her late 30s. She is smiling warmly, standing outdoors in a lush, sunny urban park with soft-focus trees in the background. The aesthetic is clean, bright, and filled with natural daylight, emphasizing transparency and environmental commitment. High resolution and modern light mode style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyQw1Gs2c_FqZm-UZM5I8vJhTxx5gHgOjUoOVKoaOEx_0IODS9ypxo0Ai4INauGhb4QkNHHDXi1IQYy4qKVaubnOz8xzoBpkXTx733QNcTn8o3_NQjo_wD5zG-xuFyZveArwqK_50KHRivQlKnZpM9vb7LP5XmdL9D5R9Nd46nkTQpVzzSNN7mW9ohaA6CpEJf4vjTKLiupNx4lAsJDoHyzhwaDVoWj9h6URepa-ej3KQnNJ09cc5jILJwda0le3AAezPVcdkYwA"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary text-white w-10 h-10 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="text-center md:text-left flex-1">
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Alex Rivera</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-primary">location_on</span> San Francisco, CA
+                    </p>
+<div class="mt-4 flex flex-wrap gap-2 justify-center md:justify-start">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full font-label-sm text-label-sm">Top 1% Steward</span>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full font-label-sm text-label-sm">Verified Contributor</span>
+</div>
+</div>
+<div class="flex flex-col items-center md:items-end gap-1">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-outline">Total Impact Points</span>
+<div class="flex items-baseline gap-2">
+<span class="font-display-lg text-display-lg text-primary">12,840</span>
+<span class="font-headline-md text-headline-md text-secondary">+240</span>
+</div>
+<div class="w-48 h-2 bg-surface-container-high rounded-full overflow-hidden mt-2">
+<div class="h-full bg-primary w-[85%] rounded-full shadow-[0_0_12px_rgba(29,97,255,0.4)]"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-1">1,160 points until Elite Tier</span>
+</div>
+</div>
+</section>
+<!-- Metrics Grid (Bento Style) -->
+<section class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-lg">
+<!-- Metric 1 -->
+<div class="bg-surface-bright border border-[#F3F3F6] p-6 rounded-[24px] shadow-sm hover:scale-[1.01] transition-transform">
+<div class="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-[28px]">assignment_turned_in</span>
+</div>
+<h3 class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Verified Reports</h3>
+<div class="flex items-center justify-between mt-2">
+<span class="font-headline-lg text-headline-lg">482</span>
+<span class="text-secondary font-label-md flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 12%
+                    </span>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-surface-bright border border-[#F3F3F6] p-6 rounded-[24px] shadow-sm hover:scale-[1.01] transition-transform">
+<div class="w-12 h-12 rounded-xl bg-secondary/5 flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined text-[28px]">eco</span>
+</div>
+<h3 class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Sources Resolved</h3>
+<div class="flex items-center justify-between mt-2">
+<span class="font-headline-lg text-headline-lg">156</span>
+<span class="text-secondary font-label-md flex items-center">
+<span class="material-symbols-outlined text-sm">trending_up</span> 8%
+                    </span>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-surface-bright border border-[#F3F3F6] p-6 rounded-[24px] shadow-sm hover:scale-[1.01] transition-transform">
+<div class="w-12 h-12 rounded-xl bg-tertiary-fixed/30 flex items-center justify-center text-tertiary mb-4">
+<span class="material-symbols-outlined text-[28px]">groups</span>
+</div>
+<h3 class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Community Assists</h3>
+<div class="flex items-center justify-between mt-2">
+<span class="font-headline-lg text-headline-lg">1.2k</span>
+<span class="text-on-surface-variant font-label-md">Stable</span>
+</div>
+</div>
+<!-- Metric 4 (Environmental Gauge) -->
+<div class="bg-primary p-6 rounded-[24px] shadow-lg text-white flex flex-col justify-between overflow-hidden relative group">
+<div class="absolute -right-4 -bottom-4 opacity-10 rotate-12 transition-transform group-hover:scale-110">
+<span class="material-symbols-outlined text-[120px]">psychology</span>
+</div>
+<h3 class="font-label-sm text-label-sm opacity-80 uppercase tracking-wider relative z-10">Steward Health</h3>
+<div class="relative z-10">
+<div class="flex items-baseline gap-1">
+<span class="font-display-lg text-display-lg">98</span>
+<span class="font-headline-md text-headline-md opacity-80">%</span>
+</div>
+<p class="font-label-sm text-label-sm mt-2 font-medium">Optimal Performance</p>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Achievement Gallery -->
+<div class="lg:col-span-7 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Achievement Gallery</h2>
+<button class="text-primary font-label-md text-label-md hover:underline">View All</button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+<!-- Earned Badge -->
+<div class="achievement-card bg-surface-bright border border-[#F3F3F6] p-4 rounded-[24px] text-center relative overflow-hidden group">
+<div class="badge-glow absolute inset-0 bg-primary/5 opacity-0 transition-opacity duration-500"></div>
+<div class="w-20 h-20 mx-auto bg-primary-container/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-primary text-[40px]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<h4 class="font-label-md text-label-md font-bold">Early Adopter</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Joined Year 1</p>
+</div>
+<!-- Earned Badge -->
+<div class="achievement-card bg-surface-bright border border-[#F3F3F6] p-4 rounded-[24px] text-center relative overflow-hidden group">
+<div class="badge-glow absolute inset-0 bg-secondary/5 opacity-0 transition-opacity duration-500"></div>
+<div class="w-20 h-20 mx-auto bg-secondary-container/20 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-secondary text-[40px]" style="font-variation-settings: 'FILL' 1;">forest</span>
+</div>
+<h4 class="font-label-md text-label-md font-bold">Reforester</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">100 reports fixed</p>
+</div>
+<!-- Locked Badge -->
+<div class="achievement-card bg-surface-container-low border border-dashed border-outline-variant p-4 rounded-[24px] text-center grayscale opacity-60">
+<div class="w-20 h-20 mx-auto bg-outline-variant/20 rounded-full flex items-center justify-center mb-3">
+<span class="material-symbols-outlined text-outline text-[40px]">lock</span>
+</div>
+<h4 class="font-label-md text-label-md font-bold">Air Oracle</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Predictive analysis</p>
+</div>
+</div>
+</div>
+<!-- Activity Ledger -->
+<div class="lg:col-span-5 space-y-6">
+<div class="flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-on-surface">Recent Activity</h2>
+</div>
+<div class="glass-surface rounded-[24px] overflow-hidden border border-[#F3F3F6]">
+<div class="divide-y divide-surface-container">
+<!-- Activity Item 1 -->
+<div class="p-5 hover:bg-surface-container-low/50 transition-colors flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined">add_task</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md font-bold">Verified sensor drift</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Inner Sunset Station • 2h ago</p>
+</div>
+<div class="font-bold text-secondary font-label-md">
+                                +25 pts
+                            </div>
+</div>
+<!-- Activity Item 2 -->
+<div class="p-5 hover:bg-surface-container-low/50 transition-colors flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined">map</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md font-bold">Uploaded site photo</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Marina District • 5h ago</p>
+</div>
+<div class="font-bold text-secondary font-label-md">
+                                +10 pts
+                            </div>
+</div>
+<!-- Activity Item 3 -->
+<div class="p-5 hover:bg-surface-container-low/50 transition-colors flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed/30 flex items-center justify-center text-tertiary shrink-0">
+<span class="material-symbols-outlined">forum</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md font-bold">Helped a new Steward</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Community Portal • Yesterday</p>
+</div>
+<div class="font-bold text-secondary font-label-md">
+                                +10 pts
+                            </div>
+</div>
+<!-- Activity Item 4 -->
+<div class="p-5 hover:bg-surface-container-low/50 transition-colors flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined">analytics</span>
+</div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md font-bold">Reported PM2.5 spike</h4>
+<p class="font-label-sm text-label-sm text-on-surface-variant">SOMA Area • 2d ago</p>
+</div>
+<div class="font-bold text-secondary font-label-md">
+                                +15 pts
+                            </div>
+</div>
+</div>
+<button class="w-full py-4 font-label-md text-label-md text-primary bg-surface-container-low hover:bg-surface-container transition-colors">
+                        Load More Activity
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<nav class="lg:hidden fixed bottom-0 w-full z-50 bg-surface/80 backdrop-blur-md border-t border-white/20 flex justify-around items-center px-4 pb-4 pt-2 shadow-[0_-8px_24px_rgba(16,24,40,0.05)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1" href="#">
+<span class="material-symbols-outlined">add_circle</span>
+<span class="font-label-sm text-label-sm">Report</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-3 py-1" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm">Dash</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-3 py-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">User</span>
+</a>
+</nav>
+<script>
+        // Micro-interaction for point counter animation
+        function animatePoints(target) {
+            const el = document.querySelector('.font-display-lg');
+            let current = 12000;
+            const step = Math.ceil((target - current) / 60);
+            
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    el.textContent = target.toLocaleString();
+                    clearInterval(interval);
+                } else {
+                    el.textContent = current.toLocaleString();
+                }
+            }, 16);
+        }
+
+        // Trigger animation on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => animatePoints(12840), 500);
+        });
+
+        // Toggle hover effect state via JS for smoother mobile handling if needed
+        const cards = document.querySelectorAll('.achievement-card');
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.add('scale-95');
+                setTimeout(() => card.classList.remove('scale-95'), 100);
+            });
+        });
+    </script>
+</body></html>

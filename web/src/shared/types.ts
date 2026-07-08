@@ -73,6 +73,9 @@ export interface RiskAssessment {
 
 export interface Hotspot {
   id: string; // Document ID
+  name?: string;
+  description?: string;
+  imageUrl?: string;
   category: PollutionCategory;
   center: GeoLocation;
   reportIds: string[];

@@ -8,6 +8,10 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, dbUser, loading, signInWithGoogle, signOutUser } = useAuth();
+  
+  // Base trust is 50%. Each verified report awards 50 points. 
+  // We scale so 500 points (10 reports) reaches ~99%.
+  const trustLevel = Math.min(99, Math.floor(50 + (dbUser?.points || 0) / 10));
   const location = useLocation();
 
   const navItems = [
@@ -26,7 +30,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <Link to="/" className="hover:opacity-80 transition-opacity">
             <h1 className="font-headline text-2xl font-bold text-primary">AirPatch</h1>
           </Link>
-          <p className="text-sm text-on-surface-variant opacity-70">Environmental Lead</p>
+          <div className="flex items-center gap-2 mt-1">
+            <p className="text-sm text-on-surface-variant opacity-70">Environmental Lead</p>
+            {user && (
+               <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+                 Trust: {trustLevel}%
+               </span>
+            )}
+          </div>
         </div>
         <nav className="flex-1 space-y-2">
           {navItems.map((item) => {
@@ -61,7 +72,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                  </div>
                  <div className="flex-1 truncate">
                     <p className="text-sm font-bold text-on-surface truncate">{user.displayName || user.email}</p>
-                    <p className="text-xs text-primary font-bold">⭐️ {dbUser?.points || 0} Pts</p>
                  </div>
                </Link>
                <button onClick={signOutUser} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-on-surface-variant font-bold text-sm hover:bg-error/10 hover:text-error transition-all">
@@ -87,8 +97,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
         <div className="flex items-center gap-4">
            {user && (
-             <div className="lg:hidden flex items-center gap-2 bg-primary/10 px-3 py-1.5 rounded-full">
-                <span className="text-xs font-bold text-primary">⭐️ {dbUser?.points || 0} Pts</span>
+             <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface border border-outline-variant/30 shadow-sm">
+                <span className="material-symbols-outlined text-primary text-[16px]">security</span>
+                <span className="text-xs font-bold text-on-surface">AI Trust: {trustLevel}%</span>
              </div>
            )}
            {user ? (
@@ -106,7 +117,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </header>
 
       {/* Main Content Canvas */}
-      <main className="relative w-full lg:ml-64 lg:w-[calc(100%-16rem)] h-screen pt-16 pb-24 lg:pb-0 bg-surface-container-low overflow-y-auto overflow-x-hidden">
+      <main className="relative w-full lg:ml-64 lg:w-[calc(100%-16rem)] h-screen pt-16 pb-24 lg:pb-0 bg-surface-container-low ambient-mesh overflow-y-auto overflow-x-hidden">
         {children}
       </main>
 

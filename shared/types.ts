@@ -81,6 +81,8 @@ export interface Hotspot {
   avgSeverity: number;
   status: HotspotStatus;
   risk?: RiskAssessment;
+  name?: string;
+  imageUrl?: string;
   latestReportAt: Date;
   firstSeenAt: Date;
   updatedAt: Date;

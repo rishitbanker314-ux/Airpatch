@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.processReportCreated = processReportCreated;
 const admin = __importStar(require("firebase-admin"));
+const firestore_1 = require("firebase-admin/firestore");
 const geminiProvider_1 = require("../providers/geminiProvider");
 const openWeatherProvider_1 = require("../providers/openWeatherProvider");
 async function processReportCreated(reportId, data) {
@@ -53,7 +54,7 @@ async function processReportCreated(reportId, data) {
     await reportRef.update({
         aiStatus: 'pending',
         contextStatus: 'pending',
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: firestore_1.FieldValue.serverTimestamp()
     });
     // Prepare promises
     // 1. Gemini (requires downloading image first)
@@ -112,7 +113,7 @@ async function processReportCreated(reportId, data) {
         aqiPromise
     ]);
     const updates = {
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: firestore_1.FieldValue.serverTimestamp()
     };
     // Process Gemini Result
     if (geminiResult.status === 'fulfilled') {
@@ -126,11 +127,11 @@ async function processReportCreated(reportId, data) {
         else {
             updates.status = 'rejected';
         }
-        // Gamification: Award 10 points if it is a verified pollution event
+        // Gamification: Award 50 points if it is a verified pollution event
         if (isSupportedAirPollution && data.createdBy && data.createdBy !== 'anonymous') {
             const userRef = db.collection('users').doc(data.createdBy);
             await userRef.set({
-                points: admin.firestore.FieldValue.increment(10)
+                points: firestore_1.FieldValue.increment(50)
             }, { merge: true }).catch(err => console.error('[Orchestrator] Failed to award points:', err));
         }
     }

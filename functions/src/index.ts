@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
-import { getHistoricalAirPollution } from './providers/openWeatherProvider';
+import { FieldValue } from 'firebase-admin/firestore';
+import { getHistoricalAirPollution, getAirPollutionForecast } from './providers/openWeatherProvider';
 
 admin.initializeApp();
 
@@ -16,8 +17,8 @@ export const seedDummyHotspots = functions.https.onRequest(async (req, res) => {
       center: { lat: 23.0300, lng: 72.5800 },
       status: 'active',
       reportIds: [],
-      firstSeenAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      firstSeenAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
       activeReportCount: 5,
       totalReportCount: 5,
       avgSeverity: 4,
@@ -27,15 +28,15 @@ export const seedDummyHotspots = functions.https.onRequest(async (req, res) => {
         summary: 'Operational risk is high. Prioritize investigation.',
         drivers: ['High severity reports'] 
       },
-      latestReportAt: admin.firestore.FieldValue.serverTimestamp(),
+      latestReportAt: FieldValue.serverTimestamp(),
     },
     {
       category: 'construction_dust',
       center: { lat: 23.0150, lng: 72.5600 },
       status: 'active',
       reportIds: [],
-      firstSeenAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      firstSeenAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
       activeReportCount: 3,
       totalReportCount: 3,
       avgSeverity: 3,
@@ -45,7 +46,7 @@ export const seedDummyHotspots = functions.https.onRequest(async (req, res) => {
         summary: 'Operational risk is medium. Monitor for escalation.',
         drivers: ['Moderate severity'] 
       },
-      latestReportAt: admin.firestore.FieldValue.serverTimestamp(),
+      latestReportAt: FieldValue.serverTimestamp(),
     }
   ];
 
@@ -104,3 +105,57 @@ export const getCityAqiTrend = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError('internal', 'Failed to fetch city AQI trend');
   }
 });
+
+export const getCityAqiForecast = functions.https.onCall(async (data, context) => {
+  // Default to New Delhi coordinates
+  const lat = data.lat || 28.6139;
+  const lng = data.lng || 77.2090;
+
+  try {
+    const forecast = await getAirPollutionForecast(lat, lng);
+    
+    // We want the peak AQI for the next 3 days
+    // The forecast endpoint returns hourly data for ~5 days
+    // Each entry has `dt` (unix timestamp)
+    
+    const now = new Date();
+    // Midnight tonight (start of tomorrow)
+    const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() / 1000;
+    
+    // We will collect max AQI for: Day 1 (tomorrow), Day 2, Day 3
+    let day1Max = 0;
+    let day2Max = 0;
+    let day3Max = 0;
+    
+    if (forecast.list && Array.isArray(forecast.list)) {
+      forecast.list.forEach((entry: any) => {
+        let usAqi = 0;
+        const owAqi = entry.main.aqi || 0;
+        if (owAqi === 1) usAqi = 30;
+        else if (owAqi === 2) usAqi = 75;
+        else if (owAqi === 3) usAqi = 125;
+        else if (owAqi === 4) usAqi = 175;
+        else if (owAqi === 5) usAqi = 250;
+        else usAqi = owAqi;
+
+        const dt = entry.dt;
+        if (dt >= tomorrowStart && dt < tomorrowStart + 86400) {
+          day1Max = Math.max(day1Max, usAqi);
+        } else if (dt >= tomorrowStart + 86400 && dt < tomorrowStart + 86400 * 2) {
+          day2Max = Math.max(day2Max, usAqi);
+        } else if (dt >= tomorrowStart + 86400 * 2 && dt < tomorrowStart + 86400 * 3) {
+          day3Max = Math.max(day3Max, usAqi);
+        }
+      });
+    }
+    
+    // If no data was found for a day, provide a reasonable fallback or 0
+    return {
+      forecast: [day1Max, day2Max, day3Max]
+    };
+  } catch (error) {
+    console.error("Failed to fetch city AQI forecast:", error);
+    throw new functions.https.HttpsError('internal', 'Failed to fetch city AQI forecast');
+  }
+});
+

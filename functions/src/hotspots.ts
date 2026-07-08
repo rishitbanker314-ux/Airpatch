@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions/v1';
 import * as admin from 'firebase-admin';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { HOTSPOT_RADIUS_METERS } from './config/constants';
 import { calculateDistanceMeters } from './utils/geo';
 import type { Report, Hotspot } from './shared/types';
@@ -54,7 +55,7 @@ export async function assignReportToHotspot(reportId: string, report: Report) {
     }
   });
 
-  const now = admin.firestore.FieldValue.serverTimestamp();
+  const now = FieldValue.serverTimestamp();
 
   if (closestHotspotId) {
     // Assign to existing hotspot
@@ -114,9 +115,9 @@ export async function recomputeHotspotStats(hotspotId: string) {
     }
 
     // Convert Firestore Timestamp to Date if necessary
-    const reportDate = r.createdAt instanceof admin.firestore.Timestamp 
+    const reportDate = r.createdAt instanceof Timestamp 
       ? r.createdAt.toDate() 
-      : new Date(r.createdAt);
+      : new Date(r.createdAt as any);
 
     if (reportDate > latestDate) {
       latestDate = reportDate;
@@ -126,7 +127,7 @@ export async function recomputeHotspotStats(hotspotId: string) {
 
   const avgSeverity = severityCount > 0 ? Math.round(totalSeverity / severityCount) : 0;
   const status = activeCount === 0 ? 'resolved' : 'active';
-  const latestReportAtTs = admin.firestore.Timestamp.fromDate(latestDate);
+  const latestReportAtTs = Timestamp.fromDate(latestDate);
 
   const hotspotRef = db.collection('hotspots').doc(hotspotId);
   const hotspotDoc = await hotspotRef.get();
@@ -162,7 +163,7 @@ export async function recomputeHotspotStats(hotspotId: string) {
     status,
     risk,
     latestReportAt: latestReportAtTs,
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    updatedAt: FieldValue.serverTimestamp()
   });
 }
 

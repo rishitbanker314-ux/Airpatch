@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.submitResolution = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
+const firestore_1 = require("firebase-admin/firestore");
 const hotspots_1 = require("./hotspots");
 exports.submitResolution = functions.https.onCall(async (data, context) => {
     const { hotspotId, reportId, note, evidenceImageUrl, resolvedBy } = data;
@@ -43,7 +44,7 @@ exports.submitResolution = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('invalid-argument', 'hotspotId is required');
     }
     const db = admin.firestore();
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = firestore_1.FieldValue.serverTimestamp();
     // The caller might provide `resolvedBy` or we default it for MVP
     const finalResolvedBy = resolvedBy || 'authority_demo';
     if (reportId) {

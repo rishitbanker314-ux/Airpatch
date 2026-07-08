@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getResolutionsForHotspot, submitResolution } from '../services/resolutions';
 import type { Resolution } from '../shared/types';
 import { CheckCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
@@ -30,13 +30,7 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (isResolved) {
-      loadResolutions();
-    }
-  }, [isResolved, hotspotId]);
-
-  const loadResolutions = async () => {
+  const loadResolutions = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getResolutionsForHotspot(hotspotId);
@@ -47,7 +41,13 @@ export function ResolutionPanel({ hotspotId, reportId, isResolved, onResolved }:
     } finally {
       setLoading(false);
     }
-  };
+  }, [hotspotId]);
+
+  useEffect(() => {
+    if (isResolved) {
+      loadResolutions();
+    }
+  }, [isResolved, loadResolutions]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

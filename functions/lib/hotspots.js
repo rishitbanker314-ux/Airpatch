@@ -38,6 +38,7 @@ exports.assignReportToHotspot = assignReportToHotspot;
 exports.recomputeHotspotStats = recomputeHotspotStats;
 const functions = __importStar(require("firebase-functions/v1"));
 const admin = __importStar(require("firebase-admin"));
+const firestore_1 = require("firebase-admin/firestore");
 const constants_1 = require("./config/constants");
 const geo_1 = require("./utils/geo");
 const risk_1 = require("./risk");
@@ -78,7 +79,7 @@ async function assignReportToHotspot(reportId, report) {
             closestHotspotId = doc.id;
         }
     });
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = firestore_1.FieldValue.serverTimestamp();
     if (closestHotspotId) {
         // Assign to existing hotspot
         await db.collection('reports').doc(reportId).update({
@@ -129,7 +130,7 @@ async function recomputeHotspotStats(hotspotId) {
             severityCount++;
         }
         // Convert Firestore Timestamp to Date if necessary
-        const reportDate = r.createdAt instanceof admin.firestore.Timestamp
+        const reportDate = r.createdAt instanceof firestore_1.Timestamp
             ? r.createdAt.toDate()
             : new Date(r.createdAt);
         if (reportDate > latestDate) {
@@ -139,7 +140,7 @@ async function recomputeHotspotStats(hotspotId) {
     });
     const avgSeverity = severityCount > 0 ? Math.round(totalSeverity / severityCount) : 0;
     const status = activeCount === 0 ? 'resolved' : 'active';
-    const latestReportAtTs = admin.firestore.Timestamp.fromDate(latestDate);
+    const latestReportAtTs = firestore_1.Timestamp.fromDate(latestDate);
     const hotspotRef = db.collection('hotspots').doc(hotspotId);
     const hotspotDoc = await hotspotRef.get();
     if (!hotspotDoc.exists) {
@@ -168,7 +169,7 @@ async function recomputeHotspotStats(hotspotId) {
         status,
         risk,
         latestReportAt: latestReportAtTs,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        updatedAt: firestore_1.FieldValue.serverTimestamp()
     });
 }
 // Expose callable functions

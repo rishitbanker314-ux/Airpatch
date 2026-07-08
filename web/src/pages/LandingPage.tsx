@@ -8,7 +8,7 @@ export function LandingPage() {
   return (
     <div className="bg-surface font-body text-on-surface min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
       {/* Ambient Background Element */}
-      <div className="absolute inset-0 ambient-grid pointer-events-none z-[-1]"></div>
+      <div className="absolute inset-0 ambient-mesh ambient-grid pointer-events-none z-[-1]"></div>
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3 pointer-events-none z-[-1]"></div>
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl -translate-x-1/3 translate-y-1/3 pointer-events-none z-[-1]"></div>
       
@@ -53,7 +53,7 @@ export function LandingPage() {
       <main className="flex-grow flex flex-col pt-12 pb-24 px-margin-mobile md:px-margin-desktop gap-24 max-w-7xl mx-auto w-full">
         {/* Hero Section */}
         <section className="flex flex-col lg:flex-row items-center gap-16 relative z-10">
-          <div className="flex-1 flex flex-col gap-6 text-left">
+          <div className="flex-1 flex flex-col gap-6 text-left animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary-container/20 border border-secondary-container/30 text-on-secondary-container font-label text-label-md w-max">
               <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
               Live Network Active
@@ -66,7 +66,7 @@ export function LandingPage() {
               Empower your neighborhood with AI-verified reporting and direct authority dispatch to restore environmental health.
             </p>
           </div>
-          <div className="flex-1 relative w-full h-[500px] rounded-xl overflow-hidden glass-panel shadow-xl flex items-center justify-center group">
+          <div className="flex-1 relative w-full h-[500px] rounded-xl overflow-hidden glass-panel shadow-xl flex items-center justify-center group animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             {/* Hero Image Placeholder */}
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" 
@@ -74,7 +74,7 @@ export function LandingPage() {
             >
             </div>
             {/* Floating Data Elements (Micro-Skeuomorphic) */}
-            <div className="absolute top-8 left-8 glass-panel px-4 py-2 rounded-xl shadow-lg flex items-center gap-3 animate-[bounce_4s_infinite]">
+            <div className="absolute top-8 left-8 glass-panel px-4 py-2 rounded-xl shadow-lg flex items-center gap-3 animate-float">
               <div className="w-8 h-8 rounded-full bg-[#10B981]/20 flex items-center justify-center">
                 <span className="material-symbols-outlined text-[#10B981] text-[18px]">eco</span>
               </div>
@@ -83,7 +83,7 @@ export function LandingPage() {
                 <p className="font-headline text-title-md text-on-surface">32 <span className="text-[#10B981] text-sm">Good</span></p>
               </div>
             </div>
-            <div className="absolute bottom-12 right-8 glass-panel px-4 py-3 rounded-xl shadow-lg flex flex-col gap-1 animate-[bounce_5s_infinite_0.5s]">
+            <div className="absolute bottom-12 right-8 glass-panel px-4 py-3 rounded-xl shadow-lg flex flex-col gap-1 animate-float" style={{ animationDelay: '2s' }}>
               <p className="font-data-mono text-data-mono text-on-surface-variant uppercase flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px] text-primary">verified</span>
                 AI Verified Report

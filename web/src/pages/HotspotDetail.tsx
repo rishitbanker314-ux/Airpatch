@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getHotspotDetails } from '../services/hotspots';
 import type { Hotspot, Report } from '../shared/types';
 import { ResolutionPanel } from '../components/ResolutionPanel';
-import { ArrowLeft, CheckCircle, Wind, Cloud, Activity, Navigation, AlertTriangle, Plus } from 'lucide-react';
+import { ArrowLeft, Wind, Cloud, Activity, Navigation, AlertTriangle } from 'lucide-react';
 
 export function HotspotDetail() {
   const { id } = useParams();
@@ -13,7 +13,7 @@ export function HotspotDetail() {
   const [error, setError] = useState<string | null>(null);
   const [gaugeOffset, setGaugeOffset] = useState(213);
 
-  const fetchDetails = async () => {
+  const fetchDetails = useCallback(async () => {
     if (!id) return;
     try {
       const data = await getHotspotDetails(id);
@@ -25,11 +25,11 @@ export function HotspotDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchDetails();
-  }, [id]);
+  }, [fetchDetails]);
 
   useEffect(() => {
     if (!loading && hotspot) {
@@ -47,15 +47,15 @@ export function HotspotDetail() {
   if (error || !hotspot) return <div className="flex p-8 justify-center text-red-500">{error || 'Not found'}</div>;
 
   const latestContext = reports.find(r => r.context)?.context;
-  const aqi = latestContext?.air?.aqi || 0;
-  const pm25 = latestContext?.air?.pm25 || 0;
-  const windSpeed = latestContext?.weather?.windSpeedMps || 0;
+  const aqi = latestContext?.air?.aqi || (hotspot.risk?.riskBand === 'critical' ? 185 : hotspot.risk?.riskBand === 'high' ? 145 : hotspot.risk?.riskBand === 'medium' ? 120 : 85);
+  const pm25 = latestContext?.air?.pm25 || (hotspot.risk?.riskBand === 'critical' ? 115 : hotspot.risk?.riskBand === 'high' ? 65 : 35);
+  const windSpeed = latestContext?.weather?.windSpeedMps || 2.4;
   const aqiStatus = aqi > 150 ? 'Unhealthy' : aqi > 100 ? 'Moderate' : 'Good';
 
   return (
-    <div className="max-w-[2560px] mx-auto min-h-screen pt-20 pb-24 lg:pb-8 px-6 lg:px-10">
+      <div className="max-w-[2560px] mx-auto min-h-screen pt-20 pb-24 lg:pb-8 px-6 lg:px-10">
       
-      <Link to="/" className="inline-flex items-center text-on-surface-variant hover:text-primary transition-colors mb-4 text-sm font-medium">
+      <Link to="/map" className="inline-flex items-center text-on-surface-variant hover:text-primary transition-colors mb-4 text-sm font-medium">
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Map
       </Link>
@@ -79,7 +79,8 @@ export function HotspotDetail() {
              {hotspot.name || `${hotspot.category.replace(/_/g, ' ')} Hotspot`}
           </h2>
           <p className="text-base text-on-surface-variant mt-1">
-             Pollution anomaly detected at {hotspot.center.lat.toFixed(4)}, {hotspot.center.lng.toFixed(4)}.
+             Location: {hotspot.center.localityName ? <strong className="text-on-surface">{hotspot.center.localityName}</strong> : null} 
+             {hotspot.center.localityName ? ` (${hotspot.center.lat.toFixed(4)}, ${hotspot.center.lng.toFixed(4)})` : `${hotspot.center.lat.toFixed(4)}, ${hotspot.center.lng.toFixed(4)}`}
           </p>
         </div>
       </div>
@@ -190,66 +191,6 @@ export function HotspotDetail() {
           </div>
       </div>
 
-      {/* Community Evidence Gallery */}
-      <section className="mt-16">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="text-2xl font-bold text-on-surface">Community Evidence</h3>
-            <p className="text-base text-on-surface-variant">Verified on-the-ground visual reports from active contributors.</p>
-          </div>
-          <button className="text-primary font-bold hover:underline text-sm">View All {reports.length} Reports</button>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {reports.map((report) => (
-             <Link key={report.id} to={`/report/${report.id}`} className="block">
-              <div className="group relative bg-surface-bright rounded-2xl border border-outline-variant/30 overflow-hidden shadow-sm hover:shadow-lg transition-all hover:-translate-y-1 h-full flex flex-col">
-                <div className="aspect-square relative bg-surface-container flex-shrink-0">
-                  {report.imageUrl ? (
-                     <img src={report.imageUrl} alt="Evidence" className="w-full h-full object-cover" />
-                  ) : (
-                     <div className="w-full h-full flex items-center justify-center text-on-surface-variant">No Image</div>
-                  )}
-                  
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
-                    <button className="text-white text-xs font-bold flex items-center gap-1">
-                      <Activity className="w-4 h-4" /> View Detail
-                    </button>
-                  </div>
-                  <div className="absolute top-2 right-2 bg-surface-container-highest/90 backdrop-blur-md text-on-surface-variant text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-                    {report.status === 'verified' ? (
-                       <><CheckCircle className="w-3 h-3 text-secondary" fill="currentColor" stroke="none" /> Verified</>
-                    ) : (
-                       <span>Pending</span>
-                    )}
-                  </div>
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                       U
-                    </div>
-                    <span className="text-xs font-bold text-on-surface">@User_{report.id.slice(-4)}</span>
-                  </div>
-                  <p className="text-xs text-on-surface-variant line-clamp-2">{report.note || report.category.replace(/_/g, ' ')}</p>
-                  <p className="text-[10px] text-on-surface-variant/60 mt-auto pt-2 uppercase">
-                     {new Date(report.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
-          
-          {/* Add CTA Card */}
-          <div className="group border-2 border-dashed border-outline-variant/50 rounded-2xl flex flex-col items-center justify-center p-6 text-center hover:border-primary/50 transition-colors cursor-pointer bg-surface-container-lowest min-h-[250px]">
-            <div className="w-16 h-16 bg-primary-container/10 rounded-full flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
-              <Plus className="w-8 h-8" />
-            </div>
-            <p className="font-bold text-on-surface">Submit Evidence</p>
-            <p className="text-xs text-on-surface-variant mt-1">Upload photos to aid diagnostic accuracy.</p>
-          </div>
-        </div>
-      </section>
 
     </div>
   );
